@@ -1,0 +1,15 @@
+using Orange.Web.Models;
+using Orange.Web.Models.Coupon;
+
+namespace Orange.Web.Services.IService;
+
+public interface ICouponService
+{
+    Task<ResponseDto> GetCouponAsync(string couponCode);
+    Task<ResponseDto> GetAllCouponAsync();
+    Task<ResponseDto> GetCouponById(int id);
+    Task<ResponseDto> CreateCouponAsync(CouponDto couponDto);
+    Task<ResponseDto> UpdateCouponAsync(CouponDto couponDto);
+    Task<ResponseDto> DeleteCouponAsync(int id);
+    
+}
