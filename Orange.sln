@@ -1,6 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orange", "Orange\Orange.csproj", "{7A4B0CD3-E36F-4502-9222-0C170F011D3E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{B713F5E7-2131-49E7-91E8-86273DB0ACD3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway", "Gateway", "{B5F263AD-CD22-4936-96B7-F143571DB477}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integration", "Integration", "{30B160CE-5F2D-4A9C-9E92-68F7BCF0BC08}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{1E71EFAF-96F3-4A2A-BBB3-22903B8351CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orange.Services.CouponAPI", "Orange.Services.CouponAPI\Orange.Services.CouponAPI.csproj", "{8A920B37-290E-47DD-A5E6-3737C50E4443}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orange.Web", "Orange.Web\Orange.Web.csproj", "{6D953FBE-64F1-4340-B312-531128FF903B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,9 +18,17 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7A4B0CD3-E36F-4502-9222-0C170F011D3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7A4B0CD3-E36F-4502-9222-0C170F011D3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7A4B0CD3-E36F-4502-9222-0C170F011D3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7A4B0CD3-E36F-4502-9222-0C170F011D3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A920B37-290E-47DD-A5E6-3737C50E4443}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A920B37-290E-47DD-A5E6-3737C50E4443}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A920B37-290E-47DD-A5E6-3737C50E4443}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A920B37-290E-47DD-A5E6-3737C50E4443}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D953FBE-64F1-4340-B312-531128FF903B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D953FBE-64F1-4340-B312-531128FF903B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D953FBE-64F1-4340-B312-531128FF903B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D953FBE-64F1-4340-B312-531128FF903B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8A920B37-290E-47DD-A5E6-3737C50E4443} = {1E71EFAF-96F3-4A2A-BBB3-22903B8351CA}
+		{6D953FBE-64F1-4340-B312-531128FF903B} = {B713F5E7-2131-49E7-91E8-86273DB0ACD3}
 	EndGlobalSection
 EndGlobal
