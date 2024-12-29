@@ -33,14 +33,35 @@ public class CouponController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(CouponDto model)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid) return View(model);
+        
+        var response = await _couponService.CreateCouponAsync(model);
+        
+        if(response.IsSuccess) 
         {
-            var response = await _couponService.CreateCouponAsync(model);
-            if (response.IsSuccess)
-            {
-                
-            }
+            return RedirectToAction("Index");
         }
+        return View(model);
+        
+    }
+    
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null) return NotFound();
+        var response = await _couponService.GetCouponById(id.Value);
+        
+        if (!response.IsSuccess) return NotFound();
+        
+        var coupon = JsonConvert.DeserializeObject<CouponDto>(Convert.ToString(response.Data));
+        return View(coupon);
+
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> Delete(CouponDto model)
+    {
+        var response = await _couponService.DeleteCouponAsync(model.Id);
+        if (response.IsSuccess) return RedirectToAction("Index");
         return View(model);
         
     }

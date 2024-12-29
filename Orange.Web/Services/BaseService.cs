@@ -27,7 +27,7 @@ public class BaseService(IHttpClientFactory httpClientFactory) : IBaseService
         {
             ApiType.Post => HttpMethod.Post,
             ApiType.Put => HttpMethod.Put,
-            ApiType.Delete => HttpMethod.Put,
+            ApiType.Delete => HttpMethod.Delete,
             _ => HttpMethod.Get
         };
         Console.WriteLine(requestDto.Url);
