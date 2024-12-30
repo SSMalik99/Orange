@@ -30,6 +30,7 @@ public class CouponApiController : ControllerBase
         {
             var coupons = _dbContext.Coupons.ToList();
             _responseDto.Data = _mapper.Map<IEnumerable<CouponDto>>(coupons);
+            _responseDto.Message = "All Coupons successfully retrieved.";
         }
         catch (Exception e)
         {
@@ -54,7 +55,7 @@ public class CouponApiController : ControllerBase
                 return ResponseHelper.NotFoundResponseDto();
             }
             _responseDto.Data = _mapper.Map<CouponDto>(coupon);
-            _responseDto.Message = "All Coupons successfully retrieved.";
+            _responseDto.Message = "Coupon successfully retrieved.";
         }
         catch (Exception e)
         {
@@ -124,7 +125,7 @@ public class CouponApiController : ControllerBase
             _dbContext.Coupons.Update(obj);
             _dbContext.SaveChanges();
             _responseDto.Data = _mapper.Map<CouponDto>(obj);
-            _responseDto.Message = "Coupon successfully added.";
+            _responseDto.Message = "Coupon successfully updated.";
             
         }
         catch (Exception e)

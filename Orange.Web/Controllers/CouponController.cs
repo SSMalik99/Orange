@@ -4,6 +4,7 @@ using Orange.Web.Models;
 using Orange.Web.Models.Coupon;
 using Orange.Web.Services;
 using Orange.Web.Services.IService;
+using Orange.Web.Utility;
 
 namespace Orange.Web.Controllers;
 
@@ -12,8 +13,12 @@ public class CouponController : Controller
     private readonly ICouponService _couponService;
     public CouponController(ICouponService couponService)
     {
-        this._couponService = couponService;
+        _couponService = couponService;
     }
+    
+    /*
+     * Index Method to get all the coupons
+     */
     public async  Task<IActionResult> Index()
     {
         List<CouponDto>? coupons = new();
@@ -39,8 +44,11 @@ public class CouponController : Controller
         
         if(response.IsSuccess) 
         {
+            TempData[NotificationType.Success] = response.Message;
             return RedirectToAction("Index");
         }
+        
+        TempData[NotificationType.Error] = response.Message;
         return View(model);
         
     }
@@ -51,17 +59,22 @@ public class CouponController : Controller
         var response = await _couponService.GetCouponById(id.Value);
         
         if (!response.IsSuccess) return NotFound();
-        
         var coupon = JsonConvert.DeserializeObject<CouponDto>(Convert.ToString(response.Data));
         return View(coupon);
-
     }
     
     [HttpPost]
     public async Task<IActionResult> Delete(CouponDto model)
     {
         var response = await _couponService.DeleteCouponAsync(model.Id);
-        if (response.IsSuccess) return RedirectToAction("Index");
+        
+        if (response.IsSuccess)
+        {
+            TempData[NotificationType.Success] = response.Message;
+            return RedirectToAction("Index");
+        }
+        
+        TempData[NotificationType.Error] = response.Message;
         return View(model);
         
     }

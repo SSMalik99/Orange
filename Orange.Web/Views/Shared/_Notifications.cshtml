@@ -1,0 +1,28 @@
+﻿@using Orange.Web.Utility
+
+@if (TempData[NotificationType.Success]!=null)
+{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/toastr/toastr.js"></script>
+    <script type="text/javascript">
+        toastr.success('@TempData[NotificationType.Success]')
+        </script>
+}
+
+@if (TempData[NotificationType.Error]!=null)
+{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/toastr/toastr.js"></script>
+    <script type="text/javascript">
+        toastr.error('@TempData[NotificationType.Error]')
+        </script>
+}
+
+@if (TempData[NotificationType.Info]!=null)
+{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/toastr/toastr.js"></script>
+    <script type="text/javascript">
+        toastr.info('@TempData[NotificationType.Info]')
+        </script>
+}
