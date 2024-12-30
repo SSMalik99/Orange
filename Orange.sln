@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orange.Services.CouponAPI",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orange.Web", "Orange.Web\Orange.Web.csproj", "{6D953FBE-64F1-4340-B312-531128FF903B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orange.Services.AuthAPI", "Orange.Services.AuthAPI\Orange.Services.AuthAPI.csproj", "{A86D9CBF-16DF-4AFE-B661-2E9FC7908855}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +28,14 @@ Global
 		{6D953FBE-64F1-4340-B312-531128FF903B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D953FBE-64F1-4340-B312-531128FF903B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D953FBE-64F1-4340-B312-531128FF903B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A86D9CBF-16DF-4AFE-B661-2E9FC7908855}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A86D9CBF-16DF-4AFE-B661-2E9FC7908855}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A86D9CBF-16DF-4AFE-B661-2E9FC7908855}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A86D9CBF-16DF-4AFE-B661-2E9FC7908855}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8A920B37-290E-47DD-A5E6-3737C50E4443} = {1E71EFAF-96F3-4A2A-BBB3-22903B8351CA}
 		{6D953FBE-64F1-4340-B312-531128FF903B} = {B713F5E7-2131-49E7-91E8-86273DB0ACD3}
+		{A86D9CBF-16DF-4AFE-B661-2E9FC7908855} = {1E71EFAF-96F3-4A2A-BBB3-22903B8351CA}
 	EndGlobalSection
 EndGlobal
