@@ -4,6 +4,8 @@ using Microsoft.OpenApi.Models;
 using Orange.Services.AuthAPI;
 using Orange.Services.AuthAPI.Data;
 using Orange.Services.AuthAPI.Models;
+using Orange.Services.AuthAPI.Service;
+using Orange.Services.AuthAPI.Service.IService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,12 @@ builder.Services.AddSwaggerGen(c =>
         Title = "Orange.Services.AuthAPI",
     });
 });
+
+// add jwt options
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("ApiSettings:JwtOptions"));
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
 
 // add db context

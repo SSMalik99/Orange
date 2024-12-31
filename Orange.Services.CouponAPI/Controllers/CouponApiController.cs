@@ -24,27 +24,25 @@ public class CouponApiController : ControllerBase
     }
 
     [HttpGet]
-    public object Get()
+    public IActionResult Get()
     {
         try
         {
             var coupons = _dbContext.Coupons.ToList();
             _responseDto.Data = _mapper.Map<IEnumerable<CouponDto>>(coupons);
             _responseDto.Message = "All Coupons successfully retrieved.";
+            return Ok(_responseDto);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.GetType().ToString());
             _responseDto.Message = e.Message;
-            _responseDto.StatusCode = 500;
+            _responseDto.IsSuccess = false;
+            return Ok(_responseDto);
         }
-        
-        return _responseDto;
-        
     }
 
     [HttpGet("{id:int}")]
-    public ResponseDto Get(int id)
+    public IActionResult Get(int id)
     {
         try
         {
@@ -52,24 +50,27 @@ public class CouponApiController : ControllerBase
             
             if (coupon is null)
             {
-                return ResponseHelper.NotFoundResponseDto();
+                _responseDto.IsSuccess = false;
+                _responseDto.Message = "Coupon does not exist.";
+                return NotFound(_responseDto);
             }
             _responseDto.Data = _mapper.Map<CouponDto>(coupon);
             _responseDto.Message = "Coupon successfully retrieved.";
+            return Ok(_responseDto);
+            
         }
         catch (Exception e)
         {
             Console.WriteLine(e.GetType().ToString());
             _responseDto.Message = e.Message;
-            _responseDto.StatusCode = 500;
+            _responseDto.IsSuccess = false;
+            return Ok(_responseDto);
         }
-        
-        return _responseDto;
         
     }
     
     [HttpGet("GetByCode/{code}")]
-    public ResponseDto GetByCode(string code)
+    public IActionResult GetByCode(string code)
     {
         try
         {
@@ -77,24 +78,23 @@ public class CouponApiController : ControllerBase
             
             if (coupon is null)
             {
-                return ResponseHelper.NotFoundResponseDto();
+                return NotFound(ResponseHelper.NotFoundResponseDto());
             }
             _responseDto.Data = _mapper.Map<CouponDto>(coupon);
             _responseDto.Message = "All Coupons successfully retrieved.";
+            return Ok(_responseDto);
         }
         catch (Exception e)
         {
             Console.WriteLine(e.GetType().ToString());
             _responseDto.Message = e.Message;
-            _responseDto.StatusCode = 500;
+            _responseDto.IsSuccess = false;
+            return Ok(_responseDto);
         }
-        
-        return _responseDto;
-        
     }
     
     [HttpPost]
-    public ResponseDto Post([FromBody] CouponDto couponDto)
+    public IActionResult Post([FromBody] CouponDto couponDto)
     {
         try
         {
@@ -103,21 +103,20 @@ public class CouponApiController : ControllerBase
             _dbContext.SaveChanges();
             _responseDto.Data = _mapper.Map<CouponDto>(obj);
             _responseDto.Message = "Coupon successfully added.";
+            return Ok(_responseDto);
             
         }
         catch (Exception e)
         {
             Console.WriteLine(e.GetType().ToString());
             _responseDto.Message = e.Message;
-            _responseDto.StatusCode = 500;
+            _responseDto.IsSuccess = false;
+            return Ok(_responseDto);
         }
-        
-        return _responseDto;
-        
     }
 
     [HttpPut]
-    public ResponseDto Put([FromBody] CouponDto couponDto)
+    public IActionResult Put([FromBody] CouponDto couponDto)
     {
         try
         {
@@ -126,35 +125,38 @@ public class CouponApiController : ControllerBase
             _dbContext.SaveChanges();
             _responseDto.Data = _mapper.Map<CouponDto>(obj);
             _responseDto.Message = "Coupon successfully updated.";
+            return Ok(_responseDto);
             
         }
         catch (Exception e)
         {
             _responseDto.Message = e.Message;
-            _responseDto.StatusCode = 500;
+            _responseDto.IsSuccess =false;
+            return Ok(_responseDto);
         }
-        return _responseDto;
+        
     }
 
     
     [HttpDelete("{id:int}")]
-    public ResponseDto Delete(int id)
+    public IActionResult Delete(int id)
     {
         try
         {
             var coupon = _dbContext.Coupons.FirstOrDefault(obj => obj.Id == id);
-            if (coupon is null) return ResponseHelper.NotFoundResponseDto();
+            if (coupon is null) return Ok(ResponseHelper.NotFoundResponseDto());
             _dbContext.Coupons.Remove(coupon);
             _dbContext.SaveChanges();
             _responseDto.Message = "Coupon successfully deleted.";
+            return Ok(_responseDto);
             
         }
         catch (Exception e)
         {
             _responseDto.Message = e.Message;
-            _responseDto.StatusCode = 500;
+            _responseDto.IsSuccess = false;
+            return Ok(_responseDto);
         }
-        return _responseDto;
     }
 
     
