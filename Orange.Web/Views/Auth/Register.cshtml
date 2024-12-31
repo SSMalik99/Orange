@@ -1,0 +1,58 @@
+@model Orange.Web.Models.Auth.RegistrationDto
+
+
+<form method="post" asp-action="Register">
+    <div class="container border p-4">
+        <div class="row text-center">
+            <h1>Register</h1>
+        </div>
+        
+        <div class="row">
+            <div class="col-12 col-md-6 offset-md-3 pb-2">
+                <label asp-for="Email" class="form-label">Email address</label>
+                <input asp-for="Email" type="email" class="form-control" aria-describedby="emailHelp" placeholder="Enter email">
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            
+            <div class="col-12 col-md-6 offset-md-3 pb-2">
+                <label asp-for="FirstName" class="form-label">First Name</label>
+                <input asp-for="FirstName" type="text" class="form-control" aria-describedby="emailHelp" placeholder="Enter your first name">
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="col-12 col-md-6 offset-md-3 pb-2">
+                <label asp-for="LastName" class="form-label ">Last Name</label>
+                <input asp-for="LastName" type="text" class="form-control" aria-describedby="emailHelp" placeholder="Enter your Last name">
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 col-md-6 offset-md-3 pb-2">
+                <label asp-for="PhoneNumber" class="form-label ">Phone Number</label>
+                <input asp-for="PhoneNumber" type="number" class="form-control" aria-describedby="emailHelp" placeholder="Enter your phone number.">
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            
+            <div class="col-12 col-md-6 offset-md-3 pb-2">
+                <label asp-for="Password" class="form-label">Password</label>
+                <input asp-for="Password" type="password" class="form-control" placeholder="Password" autocomplete="off">
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 col-md-6 offset-md-3 pb-2">
+                <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="confirm your password" autocomplete="off">
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            
+            <div class="col-12 col-md-6 offset-md-3 pb-2">
+                <select class="form-select" name="role" asp-items="@ViewBag.RoleList">
+                    <option disabled selected>--- Select Role ---</option>
+                </select>
+            </div>
+            
+            <div class="col-12 col-md-6 offset-md-3 pb-2">
+                <button type="submit" class="form-control btn btn-success" value="Submit">Register </button>
+            </div>
+        </div>
+
+    </div>        
+</form>

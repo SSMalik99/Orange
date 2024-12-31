@@ -13,6 +13,7 @@ public class BaseService(IHttpClientFactory httpClientFactory) : IBaseService
 {
     public async Task<ResponseDto> SendAsync(RequestDto requestDto)
     {
+        
         HttpClient httpClient = httpClientFactory.CreateClient("OrangeAPI");
         HttpRequestMessage request = new();
         request.Headers.Add("Accept","application/json");
@@ -30,7 +31,6 @@ public class BaseService(IHttpClientFactory httpClientFactory) : IBaseService
             ApiType.Delete => HttpMethod.Delete,
             _ => HttpMethod.Get
         };
-        Console.WriteLine(requestDto.Url);
         var response = await httpClient.SendAsync(request);
 
         try

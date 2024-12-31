@@ -55,7 +55,7 @@ public class AuthApiController : ControllerBase
         return BadRequest(_responseDto);
     }
 
-    [HttpPost("role")]
+    [HttpPost("assignRole")]
     public async Task<IActionResult> Role([FromBody] AssignRoleReqDto model)
     {
         var roleAssigned = await _authService.AssignRole(model.Email, model.RoleName);

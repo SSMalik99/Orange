@@ -9,15 +9,19 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 
-// register the http client for the services
+// register the http client for each services
 builder.Services.AddHttpClient<ICouponService, CouponService>();
+builder.Services.AddHttpClient<IAuthService, AuthService>();
 
-// register the interface to the app
+// bind the interface to the implementation
 builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 
 
 SharedDetail.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"];
+SharedDetail.AuthApiBase = builder.Configuration["ServiceUrls:AuthAPI"];
 
 
 var app = builder.Build();
