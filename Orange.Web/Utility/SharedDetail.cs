@@ -8,6 +8,7 @@ public class SharedDetail
     public static string RoleAdmin = "ADMIN";
     public static string RoleCustomer = "CUSTOMER";
     public static string RoleEmployee = "EMPLOYEE";
+    public static string TokenCookie = "JWTToken";
     public enum ApiType
     {
         Get,

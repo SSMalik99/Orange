@@ -23,7 +23,7 @@ public class AuthService(IBaseService baseService) : IAuthService
         return await baseService.SendAsync(new RequestDto()
         {
             ApiType = SharedDetail.ApiType.Post,
-            Url = SharedDetail.CouponApiBase+"/api/auth/register/",
+            Url = SharedDetail.AuthApiBase+"/api/auth/register/",
             Body = registrationDto
         });
     }

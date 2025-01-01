@@ -42,7 +42,9 @@ public class BaseService(IHttpClientFactory httpClientFactory) : IBaseService
                 case HttpStatusCode.Unauthorized:
                     return new ResponseDto {IsSuccess = false, Message = "Unauthorized"};
                 case HttpStatusCode.BadRequest:
-                    return new ResponseDto {IsSuccess = false, Message = "Bad Request"};
+                    var badResponse = await response.Content.ReadAsStringAsync();
+                    var badResponseDto = JsonConvert.DeserializeObject<ResponseDto>(badResponse);
+                    return new ResponseDto {IsSuccess = false, Message = badResponseDto?.Message ?? "Bad Request"};
                 case HttpStatusCode.InternalServerError:
                     return new ResponseDto {IsSuccess = false, Message = "Internal Server Error"};
                 case HttpStatusCode.ServiceUnavailable:
