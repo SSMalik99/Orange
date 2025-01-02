@@ -66,7 +66,8 @@ public class AuthService : IAuthService
         if (!isValidPassword) return new LoginResponseDto(){ User = null, Token = "", Message = "Invalid password"};
 
         // Generate token
-        var token = _jwtTokenGenerator.GenerateJwtToken(user);
+        var roles = await _userManager.GetRolesAsync(user);
+        var token = _jwtTokenGenerator.GenerateJwtToken(user, roles);
         
         UserDto userDto = new()
         {

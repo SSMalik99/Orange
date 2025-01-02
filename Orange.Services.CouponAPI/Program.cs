@@ -1,8 +1,10 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Orange.Services.CouponAPI;
 using Orange.Services.CouponAPI.Data;
+using Orange.Services.CouponAPI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,19 +19,20 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Add Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc(name:"v1", new OpenApiInfo
-    {
-        Version = "v1",
-        Title = "Orange.Services.CouponAPI",
-    });
-});
+builder.AddSwaggerConfig();
 
+// Add DB
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionDb"));
 });
+
+
+
+builder.AddAppAuthentication();
+// Add Authorization
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -46,6 +49,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 ApplyMigrations();

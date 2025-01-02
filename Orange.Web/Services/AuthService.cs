@@ -15,7 +15,7 @@ public class AuthService(IBaseService baseService) : IAuthService
             ApiType = SharedDetail.ApiType.Post,
             Url = SharedDetail.AuthApiBase+"/api/auth/login/",
             Body = loginDto
-        });
+        }, withAuth: false);
     }
 
     public async Task<ResponseDto> RegisterAsync(RegistrationDto registrationDto)
@@ -25,7 +25,7 @@ public class AuthService(IBaseService baseService) : IAuthService
             ApiType = SharedDetail.ApiType.Post,
             Url = SharedDetail.AuthApiBase+"/api/auth/register/",
             Body = registrationDto
-        });
+        }, withAuth: false);
     }
 
     public async Task<ResponseDto> AssignRoleAsync(AssignRoleReqDto assignRoleReqDto)
@@ -36,6 +36,6 @@ public class AuthService(IBaseService baseService) : IAuthService
             ApiType = SharedDetail.ApiType.Post,
             Url = SharedDetail.AuthApiBase+"/api/auth/assignRole/",
             Body = assignRoleReqDto
-        });
+        }, withAuth: false);
     }
 }

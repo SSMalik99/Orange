@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Orange.Services.CouponAPI.Data;
 using Orange.Services.CouponAPI.Dto;
@@ -9,6 +10,7 @@ namespace Orange.Services.CouponAPI.Controllers;
 //[Route("api/[controller]")]
 [Route("api/coupon")]
 [ApiController]
+[Authorize]
 public class CouponApiController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
@@ -94,6 +96,7 @@ public class CouponApiController : ControllerBase
     }
     
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public IActionResult Post([FromBody] CouponDto couponDto)
     {
         try
@@ -116,6 +119,7 @@ public class CouponApiController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize(Roles = "Admin")]
     public IActionResult Put([FromBody] CouponDto couponDto)
     {
         try
@@ -139,6 +143,7 @@ public class CouponApiController : ControllerBase
 
     
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public IActionResult Delete(int id)
     {
         try

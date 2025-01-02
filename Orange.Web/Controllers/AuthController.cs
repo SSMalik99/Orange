@@ -109,18 +109,19 @@ public class AuthController:Controller
                 _tokenProvider.SetToken(loginResponse.Token);
                 return RedirectToAction("Index", "Home");
             }
-            else
-            {
-                ModelState.AddModelError("CustomeError", apiResponse.Message);
-            }
+            TempData[NotificationType.Error] = apiResponse.Message;
             
         }
         
         return View(model);
     }
-    public IActionResult Logout()
+    [HttpPost]
+    public async Task<IActionResult> Logout()
     {
-        return View();
+        Console.WriteLine("INside me");
+        await HttpContext.SignOutAsync();
+        _tokenProvider.RevokeToken();
+        return RedirectToAction(nameof(HomeController.Index), "Home");
     }
 
     public async Task AuthenticateUser(LoginResponseDto model)
@@ -132,8 +133,8 @@ public class AuthController:Controller
         
         
         identity.AddClaim(new Claim(
-                JwtRegisteredClaimNames.Sid, 
-                claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sid).Value
+                JwtRegisteredClaimNames.Sub, 
+                claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value
             )
         );
         identity.AddClaim(new Claim(
@@ -154,6 +155,8 @@ public class AuthController:Controller
                 claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Email).Value
             )
         );
+        identity.AddClaim(
+            new Claim(ClaimTypes.Role, claims.FirstOrDefault(claim => claim.Type == "role").Value));
         
         
         var principle = new ClaimsPrincipal(identity);

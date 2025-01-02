@@ -27,6 +27,11 @@ public class CouponController : Controller
         {
             coupons = JsonConvert.DeserializeObject<List<CouponDto>>(Convert.ToString(response.Data));
         }
+        else
+        {
+            TempData[NotificationType.Error] = response.Message;
+        }
+        
         return View(coupons);
     }
 

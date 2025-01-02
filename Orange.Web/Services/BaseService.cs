@@ -9,14 +9,19 @@ using static Orange.Web.Utility.SharedDetail;
 
 namespace Orange.Web.Services;
 
-public class BaseService(IHttpClientFactory httpClientFactory) : IBaseService
+public class BaseService(IHttpClientFactory httpClientFactory, ITokenProvider tokenProvider) : IBaseService
 {
-    public async Task<ResponseDto> SendAsync(RequestDto requestDto)
+    public async Task<ResponseDto> SendAsync(RequestDto requestDto, bool withAuth = true)
     {
         
         HttpClient httpClient = httpClientFactory.CreateClient("OrangeAPI");
         HttpRequestMessage request = new();
         request.Headers.Add("Accept","application/json");
+        if (withAuth)
+        {
+            request.Headers.Add("Authorization", $"Bearer {tokenProvider.GetToken()}");
+        }
+        
         request.RequestUri = new Uri(requestDto.Url);
 
         if (requestDto.Body is not null)

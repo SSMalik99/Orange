@@ -6,17 +6,17 @@
             <div class="row text-center">
                 <h1>Login</h1> 
             </div>
-            <div class="row text-center">
-                <div class="text-danger" asp-validation-summary="All"></div>
-            </div>
+            
             <div class="row">
                 <div class="col-12 col-md-6 offset-md-3 pb-2">
                     <label asp-for="Username" class="form-label mt-4">Email address</label>
                     <input asp-for="Username" type="email" class="form-control" aria-describedby="emailHelp" placeholder="Enter email">
+                    <span class="text-danger" asp-validation-for="Username" ></span>
                 </div>
                 <div class="col-12 col-md-6 offset-md-3 pb-2">
                     <label asp-for="Password" class="form-label mt-4">Password</label>
                     <input asp-for="Password" type="password" class="form-control" placeholder="Password" autocomplete="off">
+                    <span class="text-danger" asp-validation-for="Password" ></span>
                 </div>
                 <div class="col-12 col-md-6 offset-md-3 pb-2">
                     <button type="submit" class="form-control btn btn-success" value="Submit">Login </button>
@@ -25,3 +25,8 @@
 
         </div>        
     </form>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}
