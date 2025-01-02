@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace Orange.Services.ProductAPI.Models.Dto;
 
 public class ResponseDto
@@ -18,6 +20,17 @@ public class ResponseHelper
             Message = message,
             Data = null
         };
+    }
+
+    public static ResponseDto GenerateErrorResponse(string message)
+    {
+        return new ResponseDto
+        {
+            IsSuccess = false,
+            Message = message ,
+            Data = null
+        };
+        
     }
 }
 

@@ -16,7 +16,7 @@ public class ProductApiController:ControllerBase
 {
     private readonly AppDbContext _dbContext;
     private readonly ResponseDto _responseDto;
-    private IMapper _mapper;
+    private readonly IMapper _mapper;
     private readonly PaginateDto _paginateDto;
 
     public ProductApiController(AppDbContext dbContext, IMapper mapper)
@@ -58,7 +58,7 @@ public class ProductApiController:ControllerBase
         }
     }
 
-    [HttpGet("/{id:int}")]
+    [HttpGet("api/Products/{id:int}")]
     public IActionResult Get(int id)
     {
         try
@@ -136,12 +136,51 @@ public class ProductApiController:ControllerBase
         }
     }
 
-    // [HttpPut]
-    // [Authorize(Roles = "Admin")]
-    // public IActionResult Put([FromBody] ProductDto productDto)
-    // {
-    //     
-    // }
+    [HttpPut]
+    [Authorize(Roles = "Admin")]
+    public IActionResult Put([FromBody] ProductDto productDto)
+    {
+        try
+        {
+            var product = _dbContext.Products.FirstOrDefault(p => p.Id == productDto.Id);
+            if (product == null) return NotFound(ResponseHelper.NotFoundResponseDto("Product not found."));
+            var obj = _mapper.Map<Product>(productDto);
+            _dbContext.Products.Update(obj);
+            _dbContext.SaveChanges();
+            _responseDto.Data = _mapper.Map<ProductDto>(obj);
+            _responseDto.Message = "Product updated successfully.";
+            return Ok(_responseDto);
+
+        }
+        catch (Exception e)
+        {
+            _responseDto.Message = e.Message;
+            _responseDto.IsSuccess = false;
+            return Ok(_responseDto);
+        }
+    }
+
+    [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult Delete(int id)
+    {
+        try
+        {
+            var product = _dbContext.Products.FirstOrDefault(p => p.Id == id);
+            if (product == null) return NotFound(ResponseHelper.NotFoundResponseDto("Product not found."));
+            _dbContext.Products.Remove(product);
+            _dbContext.SaveChanges();
+            _responseDto.Message = "Product deleted successfully.";
+            return Ok(_responseDto);
+            
+        }
+        catch (Exception e)
+        {
+            _responseDto.Message = e.Message;
+            _responseDto.IsSuccess = false;
+            return Ok(_responseDto);
+        }
+    }
     
 
 }
