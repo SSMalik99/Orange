@@ -96,7 +96,7 @@ public class CouponApiController : ControllerBase
     }
     
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public IActionResult Post([FromBody] CouponDto couponDto)
     {
         try
@@ -119,7 +119,7 @@ public class CouponApiController : ControllerBase
     }
 
     [HttpPut]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public IActionResult Put([FromBody] CouponDto couponDto)
     {
         try
@@ -143,7 +143,7 @@ public class CouponApiController : ControllerBase
 
     
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public IActionResult Delete(int id)
     {
         try

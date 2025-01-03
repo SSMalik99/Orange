@@ -47,7 +47,7 @@ public class CategoryApiController: ControllerBase
         
     }
     
-    [HttpGet("/api/categories/{id:int}")]
+    [HttpGet("{id:int}")]
     public IActionResult Get(int id)
     {
         try
@@ -66,7 +66,7 @@ public class CategoryApiController: ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public IActionResult Post([FromBody] CategoryDto categoryDto)
     {
         try
@@ -84,16 +84,18 @@ public class CategoryApiController: ControllerBase
     }
     
     [HttpPut]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public IActionResult Put([FromBody] CategoryDto categoryDto)
     {
         try
         {
             var existingCategory = _dbContext.Categories.FirstOrDefault(c => c.Id == categoryDto.Id);
             if (existingCategory == null) return NotFound(ResponseHelper.NotFoundResponseDto("Category Not Found"));
-            var category = _mapper.Map<Category>(categoryDto);
-            _dbContext.Categories.Update(category);
+            
+            var category = _mapper.Map(categoryDto, existingCategory);
+            //_dbContext.Categories.Update(category);
             _dbContext.SaveChanges();
+            
             _responseDto.Message = "Category successfully updated";
             return Ok(_responseDto);
         }
@@ -104,7 +106,7 @@ public class CategoryApiController: ControllerBase
     }
 
     [HttpDelete]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public IActionResult Delete(int id)
     {
         try

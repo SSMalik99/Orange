@@ -58,12 +58,12 @@ public class ProductApiController:ControllerBase
         }
     }
 
-    [HttpGet("api/Products/{id:int}")]
+    [HttpGet("{id:int}")]
     public IActionResult Get(int id)
     {
         try
         {
-            var product = _dbContext.Products.FirstOrDefault(p => p.Id == id);
+            var product = _dbContext.Products.Include(c => c.Category).FirstOrDefault(p => p.Id == id);
             if (product == null)
             {
                 _responseDto.IsSuccess = false;
@@ -115,6 +115,7 @@ public class ProductApiController:ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = UserRoles.Admin)]
     public IActionResult Post([FromBody] ProductDto productDto)
     {
         try
@@ -137,17 +138,20 @@ public class ProductApiController:ControllerBase
     }
 
     [HttpPut]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public IActionResult Put([FromBody] ProductDto productDto)
     {
         try
         {
             var product = _dbContext.Products.FirstOrDefault(p => p.Id == productDto.Id);
             if (product == null) return NotFound(ResponseHelper.NotFoundResponseDto("Product not found."));
-            var obj = _mapper.Map<Product>(productDto);
-            _dbContext.Products.Update(obj);
+            var obj = _mapper.Map(productDto, product);
+            
+            //_dbContext.Products.Update(obj);
+            
             _dbContext.SaveChanges();
-            _responseDto.Data = _mapper.Map<ProductDto>(obj);
+            
+            //_responseDto.Data = _mapper.Map<ProductDto>(obj);
             _responseDto.Message = "Product updated successfully.";
             return Ok(_responseDto);
 
@@ -161,7 +165,7 @@ public class ProductApiController:ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public IActionResult Delete(int id)
     {
         try

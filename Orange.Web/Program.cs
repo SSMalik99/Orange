@@ -21,6 +21,8 @@ builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
     options.LoginPath = "/Auth/Login";
@@ -31,6 +33,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 SharedDetail.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"];
 SharedDetail.AuthApiBase = builder.Configuration["ServiceUrls:AuthAPI"];
+SharedDetail.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
 
 
 var app = builder.Build();
