@@ -9,17 +9,17 @@ namespace Orange.Web.Controllers;
 
 public class ProductController : Controller
 {
-    private readonly IProductService productService;
+    private readonly IProductService _productService;
 
     public ProductController(IProductService productService)
     {
-        this.productService = productService;
+        this._productService = productService;
     }
 
     private async Task<List<CategoryDto>> GetCategories()
     {
         var categories = new List<CategoryDto>();
-        var paginateResponse = await productService.GetPaginatedCategoryAsync();
+        var paginateResponse = await _productService.GetPaginatedCategoryAsync();
         if (!paginateResponse.IsSuccess) return categories;
         
         var paginated = JsonConvert.DeserializeObject<PaginateDto>(Convert.ToString(paginateResponse.Data));
@@ -29,7 +29,7 @@ public class ProductController : Controller
     
     public async Task<IActionResult> Index()
     {
-        var responseDto = await productService.GetPaginatedProductAsync();
+        var responseDto = await _productService.GetPaginatedProductAsync();
         var paginateData = JsonConvert.DeserializeObject<PaginateDto>(Convert.ToString(responseDto.Data));
         var products = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(paginateData.Main));
         return View(products);
@@ -47,7 +47,7 @@ public class ProductController : Controller
     {
         if (!ModelState.IsValid) return View(productDto);
         
-        var response = await productService.CreateProductAsync(productDto);
+        var response = await _productService.CreateProductAsync(productDto);
             
         if (response.IsSuccess)
         {
@@ -64,7 +64,7 @@ public class ProductController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         
-        var response = await productService.GetProductByIdAsync(id);
+        var response = await _productService.GetProductByIdAsync(id);
 
         if (response.IsSuccess == false)
         {
@@ -84,7 +84,7 @@ public class ProductController : Controller
     {
         if (ModelState.IsValid)
         {
-            var response = await productService.UpdateProductAsync(productDto);
+            var response = await _productService.UpdateProductAsync(productDto);
             if (response.IsSuccess)
             {
                 TempData[NotificationType.Success] = response.Message;
@@ -100,7 +100,7 @@ public class ProductController : Controller
 
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await productService.GetProductByIdAsync(id);
+        var response = await _productService.GetProductByIdAsync(id);
         if (response.IsSuccess == false)
         {
             TempData[NotificationType.Error] = response.Message;
@@ -116,7 +116,7 @@ public class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(ProductDto productDto)
     {
-        var response = await productService.DeleteProductAsync(productDto.Id);
+        var response = await _productService.DeleteProductAsync(productDto.Id);
         if (response.IsSuccess)
         {
             TempData[NotificationType.Success] = response.Message;

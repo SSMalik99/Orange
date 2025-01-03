@@ -1,21 +1,39 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Orange.Web.Models;
+using Orange.Web.Models.Product;
+using Orange.Web.Services;
+using Orange.Web.Services.IService;
 
 namespace Orange.Web.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    
+    private readonly IProductService _productService;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(IProductService productService)
     {
-        _logger = logger;
+        _productService = productService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        var responseDto = await _productService.GetPaginatedProductAsync();
+        var paginateData = JsonConvert.DeserializeObject<PaginateDto>(Convert.ToString(responseDto.Data));
+        var products = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(paginateData.Main));
+        
+        return View(products);
+    }
+    
+    [HttpGet("ProductDetail/{productId:int}")]
+    public async Task<IActionResult> ProductDetail(int productId)
+    {
+        var responseDto = await _productService.GetProductByIdAsync(productId);
+        var product = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(responseDto.Data));
+        
+        return View(product);
     }
 
     public IActionResult Privacy()

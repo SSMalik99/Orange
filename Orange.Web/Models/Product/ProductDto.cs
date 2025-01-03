@@ -10,5 +10,7 @@ public class ProductDto
     public int CategoryId { get; set; }
     
     public CategoryDto? Category { get; set; }
-    
+
+    public int Count { get; set; } = 1;
+
 }
