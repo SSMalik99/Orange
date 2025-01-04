@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Orange.Services.ShoppingCartAPI;
 using Orange.Services.ShoppingCartAPI.Data;
 using Orange.Services.ShoppingCartAPI.Extensions;
+using Orange.Services.ShoppingCartAPI.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+StaticData.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
 
 // add automapper
 builder.Services.AddSingleton(MappingConfig.RegisterMappings().CreateMapper());
