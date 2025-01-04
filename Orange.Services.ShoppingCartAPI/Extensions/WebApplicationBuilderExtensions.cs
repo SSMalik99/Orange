@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
-namespace Orange.Services.ProductAPI.Extensions;
+namespace Orange.Services.ShoppingCartAPI.Extensions;
 
 public static class WebApplicationBuilderExtensions
 {
@@ -71,7 +71,7 @@ public static class WebApplicationBuilderExtensions
             c.SwaggerDoc(name:"v1", new OpenApiInfo
             {
                 Version = "v1",
-                Title = "Orange.Services.ProductAPI",
+                Title = "Orange.Services.ShoppingCartAPI",
             });
         });
         
