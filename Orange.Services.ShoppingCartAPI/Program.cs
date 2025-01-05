@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Orange.Services.ShoppingCartAPI;
 using Orange.Services.ShoppingCartAPI.Data;
 using Orange.Services.ShoppingCartAPI.Extensions;
+using Orange.Services.ShoppingCartAPI.Services;
+using Orange.Services.ShoppingCartAPI.Services.IServices;
 using Orange.Services.ShoppingCartAPI.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,10 +15,19 @@ builder.Services.AddOpenApi();
 
 StaticData.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
 
+builder.Services.AddHttpClient();
+
+builder.Services.AddHttpClient<IProductService, ProductService>();
+
+// builder.Services.AddHttpClient("ProductAPI", client => 
+//     client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:ProductAPI"])
+// );
+
 // add automapper
 builder.Services.AddSingleton(MappingConfig.RegisterMappings().CreateMapper());
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddScoped<IProductService, ProductService>();
 // Add Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.AddSwaggerConfig();

@@ -27,6 +27,23 @@ public class ProductApiController:ControllerBase
         _paginateDto = new PaginateDto();
         
     }
+
+    [HttpPost("GetProductsWithIds")]
+    public IActionResult GetProductsWithIds([FromBody] int[] ids)
+    {
+        try
+        {
+            var products = _dbContext.Products.Where(p => ids.Contains(p.Id)).ToList();
+            _responseDto.Data = _mapper.Map<List<ProductDto>>(products);
+            _responseDto.Message = "Products retrieved successfully";
+            return Ok(_responseDto);
+        }
+        catch (Exception e)
+        {
+            return Ok(ResponseHelper.GenerateErrorResponse(e.Message));
+        }
+        
+    }
     
     [HttpGet]
     public IActionResult Get(int limit = 20, int page = 1)

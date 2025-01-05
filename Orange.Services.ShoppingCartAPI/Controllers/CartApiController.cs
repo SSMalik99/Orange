@@ -1,26 +1,32 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Orange.Services.ShoppingCartAPI.Data;
 using Orange.Services.ShoppingCartAPI.Models;
 using Orange.Services.ShoppingCartAPI.Models.Dto;
+using Orange.Services.ShoppingCartAPI.Services.IServices;
 
 namespace Orange.Services.ShoppingCartAPI.Controllers;
 
 [Route("api/cart")]
 [ApiController]
+[Authorize]
 public class CartApiController : ControllerBase
 {
     private readonly ResponseDto _responseDto;
     private readonly AppDbContext _dbContext;
     private readonly IMapper _mapper;
+    private readonly IProductService _productService;
+    
     
 
-    public CartApiController(AppDbContext dbContext, IMapper mapper)
+    public CartApiController(AppDbContext dbContext, IMapper mapper, IProductService productService)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _responseDto = new ResponseDto();
+        _productService = productService;
     }
 
     [HttpGet("GetCart/{userId:guid}")]
@@ -28,6 +34,8 @@ public class CartApiController : ControllerBase
     {
         try
         {
+            var authToken = HttpContext.Request.Headers["Authorization"].ToString();
+            
             CartDto cartDto = new()
             {
                 CartHeader = _mapper.Map<CartHeaderDto>(
@@ -40,9 +48,17 @@ public class CartApiController : ControllerBase
                 await _dbContext.CartDetails
                     .Where(cd => cd.CartHeaderId == cartDto.CartHeader.Id).ToListAsync()
                 );
+            
+            var productIds = cartDto.CartDetails
+                .Select(cd => cd.ProductId) // Extract ProductId
+                .ToList();
+
+            var productForCart = await _productService.GetAllProductForCart(productIds, authToken);
+            
             foreach (var cartDetail in cartDto.CartDetails)
             {
-                //cartDto.CartHeader.CartTotal += (double)(cartDetail.Quantity * cartDetail.Product.Price);
+                cartDetail.Product = productForCart.FirstOrDefault(p => p.Id == cartDetail.ProductId); 
+                cartDto.CartHeader.CartTotal += (double)(cartDetail.Quantity * cartDetail.Product.Price);
             }
             
             _responseDto.Data = cartDto;
