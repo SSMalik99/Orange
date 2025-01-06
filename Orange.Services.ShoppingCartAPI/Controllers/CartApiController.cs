@@ -18,15 +18,20 @@ public class CartApiController : ControllerBase
     private readonly AppDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly IProductService _productService;
+    private readonly ICouponService _couponService;
     
     
 
-    public CartApiController(AppDbContext dbContext, IMapper mapper, IProductService productService)
+    public CartApiController(
+        AppDbContext dbContext, 
+        IMapper mapper, 
+        IProductService productService, ICouponService couponService)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _responseDto = new ResponseDto();
         _productService = productService;
+        _couponService = couponService;
     }
 
     [HttpGet("GetCart/{userId:guid}")]
@@ -60,7 +65,17 @@ public class CartApiController : ControllerBase
                 cartDetail.Product = productForCart.FirstOrDefault(p => p.Id == cartDetail.ProductId); 
                 cartDto.CartHeader.CartTotal += (double)(cartDetail.Quantity * cartDetail.Product.Price);
             }
-            
+
+            if (!string.IsNullOrEmpty(cartDto.CartHeader.CouponCode))
+            {
+                var couponDto = await _couponService.GetCouponByCode(cartDto.CartHeader.CouponCode, authToken);
+                
+                if (couponDto != null && cartDto.CartHeader.CartTotal > couponDto.MinAmount)
+                {
+                    cartDto.CartHeader.CartTotal -= couponDto.MinAmount;
+                    cartDto.CartHeader.Discount = couponDto.CouponAmount;
+                }
+            }
             _responseDto.Data = cartDto;
             _responseDto.Message = "Cart details retrieved successfully";
             return Ok(_responseDto);
@@ -78,6 +93,8 @@ public class CartApiController : ControllerBase
     {
         try
         {
+            var authToken = HttpContext.Request.Headers["Authorization"].ToString();
+            
             var cartHeaderFromDb = await _dbContext
                 .CartHeaders
                 .AsNoTracking()
@@ -166,6 +183,48 @@ public class CartApiController : ControllerBase
             return Ok(ResponseHelper.GenerateErrorResponse(e.Message));
         }
     }
-    
+
+    [HttpPost("ApplyCoupon")]
+    public async Task<IActionResult> ApplyCoupon([FromBody] ApplyCouponDto applyCouponDto)
+    {
+        try
+        {
+            
+            var userAuth = HttpContext.Request.Headers["Authorization"].ToString();
+            
+            _responseDto.Message = "Coupon successfully removed from the cart.";
+            if (!string.IsNullOrEmpty(applyCouponDto.CouponCode))
+            {
+                var couponDto = await _couponService.GetCouponByCode(applyCouponDto.CouponCode, userAuth);
+                
+                if (couponDto == null)
+                {
+                    return BadRequest(ResponseHelper.GenerateErrorResponse("Coupon code could not be found."));
+                }
+                _responseDto.Message = "Coupon successfully applied.";
+            }
+            
+            
+            var cartHeader = _dbContext.CartHeaders.FirstOrDefault(ch => ch.UserId == applyCouponDto.UserId);
+            if (cartHeader == null)
+            {
+                return NotFound(ResponseHelper.GenerateErrorResponse("Cart not found"));
+            }
+            
+            // check coupon exists or not
+            
+            cartHeader.CouponCode = applyCouponDto.CouponCode ?? "";
+            _dbContext.CartHeaders.Update(cartHeader);
+            await _dbContext.SaveChangesAsync();
+            
+            return Ok(_responseDto);
+            
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
     
 }

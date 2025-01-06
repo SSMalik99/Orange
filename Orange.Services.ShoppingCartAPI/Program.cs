@@ -14,10 +14,12 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 StaticData.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
+StaticData.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"];
 
 builder.Services.AddHttpClient();
 
 builder.Services.AddHttpClient<IProductService, ProductService>();
+builder.Services.AddHttpClient<ICouponService, CouponService>();
 
 // builder.Services.AddHttpClient("ProductAPI", client => 
 //     client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:ProductAPI"])
@@ -28,6 +30,7 @@ builder.Services.AddSingleton(MappingConfig.RegisterMappings().CreateMapper());
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICouponService, CouponService>();
 // Add Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.AddSwaggerConfig();

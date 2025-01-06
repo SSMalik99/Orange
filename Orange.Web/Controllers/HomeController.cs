@@ -22,7 +22,12 @@ public class HomeController : Controller
     {
         var responseDto = await _productService.GetPaginatedProductAsync();
         var paginateData = JsonConvert.DeserializeObject<PaginateDto>(Convert.ToString(responseDto.Data));
-        var products = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(paginateData.Main));
+        List<ProductDto> products = [];
+        if (responseDto.IsSuccess)
+        {
+            products = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(paginateData.Main));    
+        }
+        
         
         return View(products);
     }
