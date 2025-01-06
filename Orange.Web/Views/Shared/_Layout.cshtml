@@ -54,14 +54,21 @@
                     }
                     else
                     {
-                        <li class="nav-item">
+                        <li class="nav-item mx-2">
                             <a class="nav-link text-white" href="#">Hello @User.Identity.Name</a>
                         </li>
+                        
                         <li class="nav-item">
                             
                             <form asp-controller="Auth" asp-action="Logout">
                                 <button class="btn btn-sm btn-outline-danger text-white" type="submit" value="submit" >Logout</button>
                             </form>
+                        </li>
+                        
+                        <li class="nav-item mx-2">
+                            <a class="nav-link text-white" asp-controller="Cart" asp-action="Index">
+                                <i class="bi bi-cart"></i>
+                            </a>
                         </li>
                     }
                 </ul>

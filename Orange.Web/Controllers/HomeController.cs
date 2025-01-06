@@ -12,10 +12,12 @@ public class HomeController : Controller
 {
     
     private readonly IProductService _productService;
+    private readonly ICartService _cartService;
 
-    public HomeController(IProductService productService)
+    public HomeController(IProductService productService, ICartService cartService)
     {
         _productService = productService;
+        _cartService = cartService;
     }
 
     public async Task<IActionResult> Index()
@@ -27,10 +29,10 @@ public class HomeController : Controller
         {
             products = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(paginateData.Main));    
         }
-        
-        
         return View(products);
     }
+    
+    
     
     [HttpGet("ProductDetail/{productId:int}")]
     public async Task<IActionResult> ProductDetail(int productId)

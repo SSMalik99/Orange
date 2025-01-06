@@ -13,6 +13,7 @@ builder.Services.AddHttpClient();
 // register the http client for each services
 builder.Services.AddHttpClient<ICouponService, CouponService>();
 builder.Services.AddHttpClient<IAuthService, AuthService>();
+builder.Services.AddHttpClient<ICartService, CartService>();
 
 
 
@@ -22,6 +23,7 @@ builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
@@ -34,7 +36,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 SharedDetail.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"];
 SharedDetail.AuthApiBase = builder.Configuration["ServiceUrls:AuthAPI"];
 SharedDetail.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
-
+SharedDetail.CartApiBase = builder.Configuration["ServiceUrls:CartAPI"];
 
 var app = builder.Build();
 
