@@ -7,6 +7,6 @@ public interface ICartService
 {
     Task<ResponseDto> GetCartAsync(string userId);
     Task<ResponseDto> UpsertCartAsync(CartDto cartDto);
-    Task<ResponseDto> RemoveFromCartAsync(Guid cartDetailId);
+    Task<ResponseDto> RemoveFromCartAsync(string cartDetailId);
     Task<ResponseDto> ApplyCouponAsync(ApplyCouponDto applyCouponDto);
 }

@@ -39,6 +39,22 @@ public class ProductService : IProductService
             .DeserializeObject<List<ProductDto>>(Convert.ToString(responseDto.Data)) 
             : [];
     }
+
+    public async Task<ProductDto?> GetProductById(int productId, string? userJwt)
+    {
+        var httpClient = _httpClientFactory.CreateClient("ProductAPI");
+        var response = await ApiCallHelper.SendRequest(
+            httpClient,
+            _productBaseAPI + "/api/products/"+productId,
+            HttpMethod.Get,
+            null,
+            userJwt
+        );
+        
+        var apiContent = await response.Content.ReadAsStringAsync();
+        var responseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
+        return responseDto.IsSuccess ? JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(responseDto.Data)) : null;
+    }
     
 
     public async Task<List<ProductDto>> GetAllProductForCart(List<int> productIds, string? userJwt)

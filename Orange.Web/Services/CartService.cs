@@ -32,7 +32,7 @@ public class CartService : ICartService
         });
     }
 
-    public async Task<ResponseDto> RemoveFromCartAsync(Guid cartDetailId)
+    public async Task<ResponseDto> RemoveFromCartAsync(string cartDetailId)
     {
         return await _baseService.SendAsync(new RequestDto() {
             ApiType = SharedDetail.ApiType.Delete,

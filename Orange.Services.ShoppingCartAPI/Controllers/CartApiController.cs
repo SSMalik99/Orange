@@ -72,7 +72,7 @@ public class CartApiController : ControllerBase
                 
                 if (couponDto != null && cartDto.CartHeader.CartTotal > couponDto.MinAmount)
                 {
-                    cartDto.CartHeader.CartTotal -= couponDto.MinAmount;
+                    cartDto.CartHeader.CartTotal -= couponDto.CouponAmount;
                     cartDto.CartHeader.Discount = couponDto.CouponAmount;
                 }
             }
@@ -135,7 +135,6 @@ public class CartApiController : ControllerBase
                 }
                 else
                 {
-                    
                     newCartDetail.Quantity += cartDetailsFromDb.Quantity;
                     newCartDetail.CartHeaderId = cartDetailsFromDb.CartHeaderId;
                     newCartDetail.CartId = cartDetailsFromDb.CartId;
@@ -193,17 +192,8 @@ public class CartApiController : ControllerBase
             var userAuth = HttpContext.Request.Headers["Authorization"].ToString();
             
             _responseDto.Message = "Coupon successfully removed from the cart.";
-            if (!string.IsNullOrEmpty(applyCouponDto.CouponCode))
-            {
-                var couponDto = await _couponService.GetCouponByCode(applyCouponDto.CouponCode, userAuth);
-                
-                if (couponDto == null)
-                {
-                    return BadRequest(ResponseHelper.GenerateErrorResponse("Coupon code could not be found."));
-                }
-                _responseDto.Message = "Coupon successfully applied.";
-            }
-            
+
+            var couponDto = new CouponDto();
             
             var cartHeader = _dbContext.CartHeaders.FirstOrDefault(ch => ch.UserId == applyCouponDto.UserId);
             if (cartHeader == null)
@@ -211,7 +201,34 @@ public class CartApiController : ControllerBase
                 return NotFound(ResponseHelper.GenerateErrorResponse("Cart not found"));
             }
             
-            // check coupon exists or not
+            if (!string.IsNullOrEmpty(applyCouponDto.CouponCode))
+            {
+                couponDto = await _couponService.GetCouponByCode(applyCouponDto.CouponCode, userAuth);
+                
+                if (couponDto == null)
+                {
+                    return BadRequest(ResponseHelper.GenerateErrorResponse("Coupon code could not be found."));
+                }
+
+                var products = _dbContext.CartDetails.Where(cd => cd.CartHeaderId == cartHeader.Id).ToList();
+                double totalAmount = 0.0; 
+                
+                foreach (var product in products)
+                {
+                    var mainProduct = await _productService.GetProductById(product.ProductId, userAuth);
+                    if (mainProduct == null) continue;
+                    totalAmount += (double)(mainProduct.Price * product.Quantity);
+                }
+
+                if (totalAmount < couponDto.MinAmount)
+                {
+                    return BadRequest(ResponseHelper.GenerateErrorResponse("Cart too low to apply coupon."));
+                }
+                
+                    
+                    
+                _responseDto.Message = "Coupon successfully applied.";
+            }
             
             cartHeader.CouponCode = applyCouponDto.CouponCode ?? "";
             _dbContext.CartHeaders.Update(cartHeader);

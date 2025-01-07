@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Orange.Web.Models.Cart;
 using Orange.Web.Services.IService;
+using Orange.Web.Utility;
 
 namespace Orange.Web.Controllers;
 
@@ -20,10 +21,69 @@ public class CartController : Controller
         return View(await LoadCartInformation());
     }
 
+    [HttpPost("RemoveItem/{cartDetailsId}")]
+    public async Task<IActionResult> RemoveItem(string cartDetailsId)
+    {
+        var responseDto = await _cartService.RemoveFromCartAsync( cartDetailsId );
+
+        if(responseDto.IsSuccess) { TempData[NotificationType.Success] = responseDto.Message;
+        }else{ TempData[NotificationType.Error] = responseDto.Message; }
+        
+        return RedirectToAction(nameof(Index));
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> ApplyCoupon(CartDto cartDto)
+    {
+        if (string.IsNullOrEmpty(cartDto.CartHeader.CouponCode))
+        {
+            TempData[NotificationType.Error] = "Please enter a valid coupon code.";
+            return RedirectToAction(nameof(Index));
+        }
+        
+        ApplyCouponDto applyCouponDto = new ApplyCouponDto()
+        {
+            UserId = cartDto.CartHeader.UserId,
+            CouponCode = cartDto.CartHeader.CouponCode,
+        };
+        var responseDto = await _cartService.ApplyCouponAsync(applyCouponDto);
+        if (responseDto.IsSuccess)
+        {
+            TempData[NotificationType.Success] = responseDto.Message;
+        }
+        else
+        {
+            TempData[NotificationType.Error] = responseDto.Message;
+        }
+        
+        return RedirectToAction(nameof(Index));
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> RemoveCoupon(CartDto cartDto)
+    {
+        ApplyCouponDto applyCouponDto = new ApplyCouponDto()
+        {
+            UserId = cartDto.CartHeader.UserId,
+            CouponCode = null,
+        };
+        
+        var responseDto = await _cartService.ApplyCouponAsync(applyCouponDto);
+        if (responseDto.IsSuccess)
+        {
+            TempData[NotificationType.Success] = "Coupon code removed successfully.";
+            
+        }
+        else
+        {
+            TempData[NotificationType.Error] = responseDto.Message;
+        }
+        
+        return RedirectToAction(nameof(Index));
+    }
     private async Task<CartDto> LoadCartInformation()
     {
         var userId = User.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;
-        Console.WriteLine(userId);
         
         var responseDto = await _cartService.GetCartAsync( userId );
         if (!responseDto.IsSuccess) return new CartDto();

@@ -1,10 +1,14 @@
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Orange.Web.Models;
+using Orange.Web.Models.Cart;
 using Orange.Web.Models.Product;
 using Orange.Web.Services;
 using Orange.Web.Services.IService;
+using Orange.Web.Utility;
 
 namespace Orange.Web.Controllers;
 
@@ -41,6 +45,43 @@ public class HomeController : Controller
         var product = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(responseDto.Data));
         
         return View(product);
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> AddProductToCart(ProductDto productDto)
+    {
+        var userId = User.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;
+        
+        var cartDto = new CartDto()
+        {
+            CartHeader = new CartHeaderDto() { UserId = userId, }
+        };
+        
+        
+        var cartDetails = new CartDetailsDto()
+        {
+            Quantity = productDto.Count,
+            ProductId = productDto.Id,
+        };
+
+        List<CartDetailsDto> cartDetailsDto = [ cartDetails ];
+        
+        cartDto.CartDetails = cartDetailsDto;
+        
+        Console.WriteLine($"Cart: {JsonConvert.SerializeObject(cartDto)}");
+        
+        var responseDto = await _cartService.UpsertCartAsync(cartDto);
+
+        if (responseDto.IsSuccess)
+        {
+            TempData[NotificationType.Success] = responseDto.Message;
+            return RedirectToAction("Index");
+        }
+
+        TempData[NotificationType.Error] = responseDto.Message;
+
+        return View("ProductDetail", productDto);
     }
 
     public IActionResult Privacy()
