@@ -17,9 +17,11 @@ StaticData.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
 StaticData.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"];
 
 builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddHttpClient<IProductService, ProductService>();
 builder.Services.AddHttpClient<ICouponService, CouponService>();
+builder.Services.AddScoped<ApiAuthHttpClientHandler>();
 
 // builder.Services.AddHttpClient("ProductAPI", client => 
 //     client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:ProductAPI"])
