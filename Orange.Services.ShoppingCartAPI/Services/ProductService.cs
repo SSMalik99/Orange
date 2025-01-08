@@ -20,7 +20,7 @@ public class ProductService : IProductService
     
 
     
-    public async Task<List<ProductDto>> GetProducts(string? userJwt)
+    public async Task<List<ProductDto>> GetProducts()
     {
             var httpClient = _httpClientFactory.CreateClient("ProductAPI");
             
@@ -28,8 +28,7 @@ public class ProductService : IProductService
                 httpClient,
                 _productBaseAPI + "/api/products",
                 HttpMethod.Get,
-                null,
-                userJwt
+                null
                 );
         
         var apiContent = await response.Content.ReadAsStringAsync();
@@ -40,15 +39,14 @@ public class ProductService : IProductService
             : [];
     }
 
-    public async Task<ProductDto?> GetProductById(int productId, string? userJwt)
+    public async Task<ProductDto?> GetProductById(int productId)
     {
         var httpClient = _httpClientFactory.CreateClient("ProductAPI");
         var response = await ApiCallHelper.SendRequest(
             httpClient,
             _productBaseAPI + "/api/products/"+productId,
             HttpMethod.Get,
-            null,
-            userJwt
+            null
         );
         
         var apiContent = await response.Content.ReadAsStringAsync();
@@ -57,20 +55,19 @@ public class ProductService : IProductService
     }
     
 
-    public async Task<List<ProductDto>> GetAllProductForCart(List<int> productIds, string? userJwt)
+    public async Task<List<ProductDto>> GetAllProductForCart(List<int> productIds)
     {
         var httpClient = _httpClientFactory.CreateClient("ProductAPI");
         var response = await ApiCallHelper.SendRequest(
             httpClient,
             _productBaseAPI + "/api/products/GetProductsWithIds",
             HttpMethod.Post,
-            productIds,
-            userJwt
+            productIds
         );
         var apiContent = await response.Content.ReadAsStringAsync();
         var responseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
         
-        return responseDto.IsSuccess ?  JsonConvert
+        return responseDto is { IsSuccess: true } ?  JsonConvert
                 .DeserializeObject<List<ProductDto>>(Convert.ToString(responseDto.Data)) 
             : [];
         

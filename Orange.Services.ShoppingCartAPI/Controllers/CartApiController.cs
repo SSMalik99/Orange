@@ -14,24 +14,24 @@ namespace Orange.Services.ShoppingCartAPI.Controllers;
 [Authorize]
 public class CartApiController : ControllerBase
 {
-    private readonly ResponseDto _responseDto;
+    
+    private readonly ResponseDto _responseDto = new();
     private readonly AppDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly IProductService _productService;
     private readonly ICouponService _couponService;
-    
-    
 
     public CartApiController(
-        AppDbContext dbContext, 
-        IMapper mapper, 
-        IProductService productService, ICouponService couponService)
+        AppDbContext dbContext,
+        IMapper mapper,
+        IProductService productService,
+        ICouponService couponService)
     {
         _dbContext = dbContext;
         _mapper = mapper;
-        _responseDto = new ResponseDto();
         _productService = productService;
         _couponService = couponService;
+        
     }
 
     [HttpGet("GetCart/{userId:guid}")]
@@ -39,7 +39,6 @@ public class CartApiController : ControllerBase
     {
         try
         {
-            var authToken = HttpContext.Request.Headers["Authorization"].ToString();
             
             CartDto cartDto = new()
             {
@@ -58,17 +57,25 @@ public class CartApiController : ControllerBase
                 .Select(cd => cd.ProductId) // Extract ProductId
                 .ToList();
 
-            var productForCart = await _productService.GetAllProductForCart(productIds, authToken);
+            
+            var productForCart = await _productService.GetAllProductForCart(productIds);
+
+            if (productForCart.Count == 0)
+            {
+                return BadRequest(ResponseHelper.GenerateErrorResponse("There are no products associated with this cart"));
+            }
             
             foreach (var cartDetail in cartDto.CartDetails)
             {
-                cartDetail.Product = productForCart.FirstOrDefault(p => p.Id == cartDetail.ProductId); 
-                cartDto.CartHeader.CartTotal += (double)(cartDetail.Quantity * cartDetail.Product.Price);
+                cartDetail.Product = productForCart.FirstOrDefault(p => p.Id == cartDetail.ProductId);
+                
+                if (cartDetail.Product != null)
+                    cartDto.CartHeader.CartTotal += (double)(cartDetail.Quantity * cartDetail.Product.Price);
             }
 
             if (!string.IsNullOrEmpty(cartDto.CartHeader.CouponCode))
             {
-                var couponDto = await _couponService.GetCouponByCode(cartDto.CartHeader.CouponCode, authToken);
+                var couponDto = await _couponService.GetCouponByCode(cartDto.CartHeader.CouponCode);
                 
                 if (couponDto != null && cartDto.CartHeader.CartTotal > couponDto.MinAmount)
                 {
@@ -93,7 +100,6 @@ public class CartApiController : ControllerBase
     {
         try
         {
-            var authToken = HttpContext.Request.Headers["Authorization"].ToString();
             
             var cartHeaderFromDb = await _dbContext
                 .CartHeaders
@@ -171,7 +177,7 @@ public class CartApiController : ControllerBase
             if (totalCartItems == 1)
             {
                 var cartHeaderToRemove = await _dbContext.CartHeaders.FirstOrDefaultAsync(hd => hd.Id == cartDetail.CartHeaderId);
-                _dbContext.CartHeaders.Remove(cartHeaderToRemove);
+                if (cartHeaderToRemove != null) _dbContext.CartHeaders.Remove(cartHeaderToRemove);
             }
             _responseDto.Message = "Product deleted from the cart.";
             await _dbContext.SaveChangesAsync();
@@ -189,11 +195,9 @@ public class CartApiController : ControllerBase
         try
         {
             
-            var userAuth = HttpContext.Request.Headers["Authorization"].ToString();
+            
             
             _responseDto.Message = "Coupon successfully removed from the cart.";
-
-            var couponDto = new CouponDto();
             
             var cartHeader = _dbContext.CartHeaders.FirstOrDefault(ch => ch.UserId == applyCouponDto.UserId);
             if (cartHeader == null)
@@ -203,7 +207,7 @@ public class CartApiController : ControllerBase
             
             if (!string.IsNullOrEmpty(applyCouponDto.CouponCode))
             {
-                couponDto = await _couponService.GetCouponByCode(applyCouponDto.CouponCode, userAuth);
+                var couponDto = await _couponService.GetCouponByCode(applyCouponDto.CouponCode);
                 
                 if (couponDto == null)
                 {
@@ -215,7 +219,7 @@ public class CartApiController : ControllerBase
                 
                 foreach (var product in products)
                 {
-                    var mainProduct = await _productService.GetProductById(product.ProductId, userAuth);
+                    var mainProduct = await _productService.GetProductById(product.ProductId);
                     if (mainProduct == null) continue;
                     totalAmount += (double)(mainProduct.Price * product.Quantity);
                 }

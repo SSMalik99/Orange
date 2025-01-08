@@ -15,17 +15,12 @@ public static class ApiCallHelper
         HttpClient httpClient,
         string url, 
         HttpMethod httpMethod, 
-        object? body, 
-        string? jwtToken
+        object? body
         )
     {
         
         HttpRequestMessage request = new();
         request.Headers.Add("Accept","application/json");
-        if (jwtToken != null)
-        {
-            request.Headers.Add("Authorization", jwtToken);    
-        }
         
         request.RequestUri = new Uri(url);
 

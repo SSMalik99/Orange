@@ -16,7 +16,7 @@ public class CouponService : ICouponService
         
         
     }
-    public async Task<CouponDto?> GetCouponByCode(string couponCode, string? authToken)
+    public async Task<CouponDto?> GetCouponByCode(string couponCode)
     {
         var httpClient = _httpClientFactory.CreateClient("CouponAPI");
             
@@ -24,8 +24,7 @@ public class CouponService : ICouponService
             httpClient,
             StaticData.CouponApiBase + "/api/coupon/GetByCode/"+couponCode,
             HttpMethod.Get,
-            null,
-            authToken
+            null
         );
         
         var apiContent = await response.Content.ReadAsStringAsync();

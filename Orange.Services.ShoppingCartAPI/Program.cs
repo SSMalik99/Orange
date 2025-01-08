@@ -13,19 +13,24 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-StaticData.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
-StaticData.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"];
+StaticData.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"] ?? throw new InvalidOperationException();
+StaticData.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"] ?? throw new InvalidOperationException();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddHttpClient<IProductService, ProductService>();
-builder.Services.AddHttpClient<ICouponService, CouponService>();
 builder.Services.AddScoped<ApiAuthHttpClientHandler>();
+//builder.Services.AddHttpClient<IProductService, ProductService>().AddHttpMessageHandler<ApiAuthHttpClientHandler>();
+//builder.Services.AddHttpClient<ICouponService, CouponService>().AddHttpMessageHandler<ApiAuthHttpClientHandler>();
 
-// builder.Services.AddHttpClient("ProductAPI", client => 
-//     client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:ProductAPI"])
-// );
+
+builder.Services.AddHttpClient("ProductAPI", client => 
+    client.BaseAddress = new Uri(StaticData.ProductApiBase)
+).AddHttpMessageHandler<ApiAuthHttpClientHandler>();
+
+builder.Services.AddHttpClient("CouponAPI", client => 
+    client.BaseAddress = new Uri(StaticData.CouponApiBase)
+).AddHttpMessageHandler<ApiAuthHttpClientHandler>();
 
 // add automapper
 builder.Services.AddSingleton(MappingConfig.RegisterMappings().CreateMapper());

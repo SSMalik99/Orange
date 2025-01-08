@@ -17,6 +17,7 @@ public class ApiAuthHttpClientHandler : DelegatingHandler
     {
         var token = await httpContextAccessor.HttpContext.GetTokenAsync("access_token");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        Console.WriteLine(token);
         return await base.SendAsync(request, cancellationToken);
     }
     
