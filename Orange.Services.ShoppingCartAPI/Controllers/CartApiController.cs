@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Orange.MessageBus;
 using Orange.Services.ShoppingCartAPI.Data;
 using Orange.Services.ShoppingCartAPI.Models;
 using Orange.Services.ShoppingCartAPI.Models.Dto;
@@ -20,17 +21,22 @@ public class CartApiController : ControllerBase
     private readonly IMapper _mapper;
     private readonly IProductService _productService;
     private readonly ICouponService _couponService;
+    private readonly IMessageBus _messageBus;
+    private readonly IConfiguration _configuration;
 
     public CartApiController(
         AppDbContext dbContext,
         IMapper mapper,
         IProductService productService,
-        ICouponService couponService)
+        ICouponService couponService,
+        IMessageBus messageBus, IConfiguration config)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _productService = productService;
         _couponService = couponService;
+        _messageBus = messageBus;
+        _configuration = config;
         
     }
 
@@ -243,9 +249,26 @@ public class CartApiController : ControllerBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return Ok(ResponseHelper.GenerateErrorResponse(e.Message));
         }
     }
+    
+    
+    [HttpPost("EmailCart")]
+    public async Task<IActionResult> EmailCart([FromBody] CartDto cartDto)
+    {
+        try
+        {
+            await _messageBus.PublishMessageAsync(cartDto, _configuration.GetValue<string>("TopicAndQueueName:EmailShoppingCart"));
+            _responseDto.Message = "Cart will be sent to your email address. Please wait for few seconds before sending again.";
+            return Ok(_responseDto);
+            
+        }
+        catch (Exception e)
+        {
+            return Ok(ResponseHelper.GenerateErrorResponse(e.Message));
+        }
+    }
+    
     
 }

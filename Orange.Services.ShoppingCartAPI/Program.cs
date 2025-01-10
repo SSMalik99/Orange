@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Orange.MessageBus;
 using Orange.Services.ShoppingCartAPI;
 using Orange.Services.ShoppingCartAPI.Data;
 using Orange.Services.ShoppingCartAPI.Extensions;
@@ -38,6 +39,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
+
+builder.Services.AddScoped<IMessageBus, MessageBus>();
 // Add Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.AddSwaggerConfig();
