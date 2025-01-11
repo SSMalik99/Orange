@@ -3,6 +3,8 @@ using System.Text.Unicode;
 using Azure.Messaging.ServiceBus;
 using Newtonsoft.Json;
 using Orange.Services.EmailAPI.Models.Dto;
+using Orange.Services.EmailAPI.Services;
+using Orange.Services.EmailAPI.Services.IServices;
 using Orange.Services.EmailAPI.Utility;
 
 namespace Orange.Services.EmailAPI.CloudMessaging;
@@ -11,12 +13,14 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
 {
     private ServiceBusProcessor _emailCartProcessor;
     private readonly ILogger<AzureServiceBusConsumer> _logger;
+    private readonly EmailService _emailService;
     
-    public AzureServiceBusConsumer( ILogger<AzureServiceBusConsumer> logger )
+    public AzureServiceBusConsumer( ILogger<AzureServiceBusConsumer> logger, EmailService emailService )
     {
         var client = new ServiceBusClient(StaticData.AzureQueueConnectionString);
         _emailCartProcessor = client.CreateProcessor(StaticData.AzureEmailCartQueueName);
         _logger = logger;
+        _emailService = emailService;
         
     }
 
@@ -37,16 +41,18 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
     private async Task OnEmailCartReceived(ProcessMessageEventArgs arg)
     {
         var message = arg.Message;
-        _logger.LogInformation( $"Received message: {message}");
-        var body = Encoding.UTF8.GetString(message.Body);
-        
-        var cartDto = JsonConvert.DeserializeObject<CartDto>(body);
         try
         {
+            
+            _logger.LogInformation( $"Received message: {message}");
+            var body = Encoding.UTF8.GetString(message.Body);
+
+            var cartDto = JsonConvert.DeserializeObject<CartDto>(body);
             _logger.LogInformation( $"Processing cart: {JsonConvert.SerializeObject(cartDto)}");
             
             // Send Email - TODO
-            
+            if (cartDto != null) await _emailService.SendCartEmail(cartDto);
+
             await arg.CompleteMessageAsync( message);
 
         }

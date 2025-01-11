@@ -7,6 +7,7 @@ using Orange.Services.ShoppingCartAPI.Data;
 using Orange.Services.ShoppingCartAPI.Models;
 using Orange.Services.ShoppingCartAPI.Models.Dto;
 using Orange.Services.ShoppingCartAPI.Services.IServices;
+using Orange.Services.ShoppingCartAPI.Utility;
 
 namespace Orange.Services.ShoppingCartAPI.Controllers;
 
@@ -259,7 +260,7 @@ public class CartApiController : ControllerBase
     {
         try
         {
-            await _messageBus.PublishMessageAsync(cartDto, _configuration.GetValue<string>("TopicAndQueueName:EmailShoppingCart"));
+            await _messageBus.PublishMessageAsync(cartDto, StaticData.AzureEmailCartQueueName);
             _responseDto.Message = "Cart will be sent to your email address. Please wait for few seconds before sending again.";
             return Ok(_responseDto);
             

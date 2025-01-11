@@ -4,7 +4,7 @@ namespace Orange.Services.EmailAPI.Services.IServices;
 
 public interface IEmailService
 {
-    Task SendEmail(string to, string subject, string body);
+    Task<bool> SendEmail(string to, string subject, string body);
     Task SendCartEmail(CartDto cart);
     
 }

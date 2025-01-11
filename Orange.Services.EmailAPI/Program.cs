@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Orange.Services.EmailAPI;
 using Orange.Services.EmailAPI.CloudMessaging;
 using Orange.Services.EmailAPI.Data;
 using Orange.Services.EmailAPI.Extensions;
+using Orange.Services.EmailAPI.Models.Dto;
 using Orange.Services.EmailAPI.Services;
 using Orange.Services.EmailAPI.Utility;
 
@@ -23,6 +25,8 @@ builder.Configuration.AddJsonFile("Azure.secret.json", optional: false, reloadOn
 StaticData.AzureQueueConnectionString = builder.Configuration["serviceBusConnectionString"] ?? throw new InvalidOperationException();
 StaticData.AzureEmailCartQueueName = builder.Configuration["TopicAndQueueName:EmailShoppingCartQueue"] ?? throw new InvalidOperationException();
 
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
 
 // add automapper
 builder.Services.AddSingleton(MappingConfig.RegisterMappings().CreateMapper());
@@ -40,7 +44,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var optionBuilder = new DbContextOptionsBuilder<AppDbContext>();
 optionBuilder.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionDb"));
-builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
+
+builder.Services.AddSingleton<EmailService>(provider => {
+    var emailSettings = provider.GetRequiredService<IOptions<EmailSettings>>();
+    return new EmailService(optionBuilder.Options, emailSettings);
+});
 
 builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
