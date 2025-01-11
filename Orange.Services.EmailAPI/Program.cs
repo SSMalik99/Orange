@@ -1,18 +1,19 @@
 using Microsoft.EntityFrameworkCore;
-using Orange.MessageBus;
-using Orange.Services.ShoppingCartAPI;
-using Orange.Services.ShoppingCartAPI.Data;
-using Orange.Services.ShoppingCartAPI.Extensions;
-using Orange.Services.ShoppingCartAPI.Services;
-using Orange.Services.ShoppingCartAPI.Services.IServices;
-using Orange.Services.ShoppingCartAPI.Utility;
+using Orange.Services.EmailAPI;
+using Orange.Services.EmailAPI.CloudMessaging;
+using Orange.Services.EmailAPI.Data;
+using Orange.Services.EmailAPI.Extensions;
+using Orange.Services.EmailAPI.Services;
+using Orange.Services.EmailAPI.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// Add services to the container.
 
 builder.Services.AddControllers();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
 
 StaticData.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"] ?? throw new InvalidOperationException();
 StaticData.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"] ?? throw new InvalidOperationException();
@@ -23,32 +24,9 @@ StaticData.AzureQueueConnectionString = builder.Configuration["serviceBusConnect
 StaticData.AzureEmailCartQueueName = builder.Configuration["TopicAndQueueName:EmailShoppingCartQueue"] ?? throw new InvalidOperationException();
 
 
-builder.Services.AddHttpClient();
-builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddScoped<ApiAuthHttpClientHandler>();
-//builder.Services.AddHttpClient<IProductService, ProductService>().AddHttpMessageHandler<ApiAuthHttpClientHandler>();
-//builder.Services.AddHttpClient<ICouponService, CouponService>().AddHttpMessageHandler<ApiAuthHttpClientHandler>();
-
-
-builder.Services.AddHttpClient("ProductAPI", client => 
-    client.BaseAddress = new Uri(StaticData.ProductApiBase)
-).AddHttpMessageHandler<ApiAuthHttpClientHandler>();
-
-builder.Services.AddHttpClient("CouponAPI", client => 
-    client.BaseAddress = new Uri(StaticData.CouponApiBase)
-).AddHttpMessageHandler<ApiAuthHttpClientHandler>();
-
 // add automapper
 builder.Services.AddSingleton(MappingConfig.RegisterMappings().CreateMapper());
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<ICouponService, CouponService>();
-
-
-builder.Services.AddScoped<IMessageBus>(_ => new MessageBus(StaticData.AzureQueueConnectionString));
-
 
 // Add Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -60,12 +38,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionDb"));
 });
 
+var optionBuilder = new DbContextOptionsBuilder<AppDbContext>();
+optionBuilder.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionDb"));
+builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
+
+builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
 
 // Authentication and Authorization
 builder.AddAppAuthentication();
 builder.Services.AddAuthorization();
-
 
 var app = builder.Build();
 
@@ -73,6 +55,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    
     // Add Swagger
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -81,6 +64,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseAzureServiceBusConsumer();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
