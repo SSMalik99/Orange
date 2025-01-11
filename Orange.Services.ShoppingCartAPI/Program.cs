@@ -17,6 +17,12 @@ builder.Services.AddOpenApi();
 StaticData.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"] ?? throw new InvalidOperationException();
 StaticData.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"] ?? throw new InvalidOperationException();
 
+builder.Configuration.AddJsonFile("Azure.secret.json", optional: false, reloadOnChange: false);
+
+StaticData.AzureQueueConnectionString = builder.Configuration["serviceBusConnectionString"] ?? throw new InvalidOperationException();
+StaticData.AzureEmailCartQueueName = builder.Configuration["TopicAndQueueName:EmailShoppingCart"] ?? throw new InvalidOperationException();
+
+
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 
@@ -40,7 +46,10 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
 
-builder.Services.AddScoped<IMessageBus, MessageBus>();
+
+builder.Services.AddScoped<IMessageBus>(provider => new MessageBus(StaticData.AzureQueueConnectionString));
+
+
 // Add Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.AddSwaggerConfig();

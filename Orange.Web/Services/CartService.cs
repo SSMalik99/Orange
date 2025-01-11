@@ -48,4 +48,13 @@ public class CartService : ICartService
             Body = applyCouponDto
         });
     }
+    
+    public async Task<ResponseDto> EmailCartAsync(CartDto cartDto)
+    {
+        return await _baseService.SendAsync(new RequestDto() {
+            ApiType = SharedDetail.ApiType.Post,
+            Url = SharedDetail.CartApiBase+"/api/cart/EmailCart/",
+            Body = cartDto
+        });
+    }
 }

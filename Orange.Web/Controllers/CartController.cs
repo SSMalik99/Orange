@@ -81,6 +81,25 @@ public class CartController : Controller
         
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpPost]
+    public async Task<IActionResult> EmailCart()
+    {
+        var cartDto = await LoadCartInformation();
+        cartDto.CartHeader.Email = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)?.Value;
+        Console.WriteLine(cartDto.CartHeader.Email);
+        var responseDto = await _cartService.EmailCartAsync(cartDto);
+        if (responseDto.IsSuccess)
+        {
+            TempData[NotificationType.Success] = responseDto.Message;
+        }
+        else
+        {
+            TempData[NotificationType.Error] = responseDto.Message;
+        }
+        return RedirectToAction(nameof(Index));
+        
+    }
     private async Task<CartDto> LoadCartInformation()
     {
         var userId = User.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;

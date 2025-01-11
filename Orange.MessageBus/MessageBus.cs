@@ -8,18 +8,18 @@ namespace Orange.MessageBus;
 public class MessageBus : IMessageBus
 {
     
-    private AzureSecretModel _azureSecretModel;
+    private readonly string _azureConnectionString;
 
-    public MessageBus()
+    public MessageBus(string connectionString)
     {
-        _azureSecretModel = FeedAzureSecrets() ?? throw new ArgumentNullException(nameof(FeedAzureSecrets));
+       _azureConnectionString = connectionString;
         
     }
     
     
     public async Task PublishMessageAsync(object message, string topiOrQueueName)
     {
-        await using var client = new ServiceBusClient(_azureSecretModel.ServiceBusConnectionString);
+        await using var client = new ServiceBusClient(_azureConnectionString);
         var sender = client.CreateSender(topiOrQueueName);
         
         var jsonMessage = JsonConvert.SerializeObject(message);
@@ -33,15 +33,6 @@ public class MessageBus : IMessageBus
         //await client.DisposeAsync();
     }
 
-    static AzureSecretModel? FeedAzureSecrets()
-    {
-        using var r = new StreamReader("Azure.Secret.json");
-        var secretDataString = r.ReadToEnd();
-        Console.WriteLine(secretDataString);
-        
-        var secrets = JsonSerializer.Deserialize<AzureSecretModel>(secretDataString);
-        return secrets;
-    }
     
     
 }
