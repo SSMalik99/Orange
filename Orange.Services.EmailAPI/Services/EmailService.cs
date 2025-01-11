@@ -94,4 +94,21 @@ public class EmailService : IEmailService
             subject: "Cart Details From Orange");
 
     }
+
+    public async Task SendRegisterUserEmail(RegisterUserDto registerUserDto)
+    {
+        if (registerUserDto?.Email == null)
+        {
+            return;
+        }
+        StringBuilder message = new StringBuilder();
+
+        message.AppendLine("<br/><h3>User Registration Information from Orange.</h3>");
+        message.AppendLine("<div style='font-weight: bold;'><br/>First Name : " + registerUserDto.FirstName);
+        message.AppendLine("<br/>Last Name : " + registerUserDto.LastName);
+        message.AppendLine("<br/>Email :" + registerUserDto.Email);
+        message.Append("<br/></div>");
+        
+        await SendEmail(to:registerUserDto.Email, body: message.ToString(), subject: "Registration Successful");
+    }
 }

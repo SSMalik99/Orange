@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Orange.MessageBus;
 using Orange.Services.AuthAPI;
 using Orange.Services.AuthAPI.Data;
 using Orange.Services.AuthAPI.Models;
 using Orange.Services.AuthAPI.Service;
 using Orange.Services.AuthAPI.Service.IService;
+using Orange.Services.AuthAPI.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,12 @@ builder.Services.AddControllers();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+
+builder.Configuration.AddJsonFile("Azure.secret.json", optional: false, reloadOnChange: false);
+
+StaticData.AzureQueueConnectionString = builder.Configuration["serviceBusConnectionString"] ?? throw new InvalidOperationException();
+StaticData.AzureRegisterQueueName = builder.Configuration["TopicAndQueueName:UserRegisteredQueue"] ?? throw new InvalidOperationException();
 
 
 // add automapper
@@ -37,6 +45,7 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("ApiSett
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IMessageBus>(_ => new MessageBus(StaticData.AzureQueueConnectionString) );
 
 
 // add db context

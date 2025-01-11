@@ -1,4 +1,4 @@
-namespace Orange.Services.EmailAPI;
+namespace Orange.Services.EmailAPI.CloudMessaging;
 
 public interface IAzureServiceBusConsumer
 {

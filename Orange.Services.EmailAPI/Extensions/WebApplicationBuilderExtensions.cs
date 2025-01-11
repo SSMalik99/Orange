@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Orange.Services.EmailAPI.CloudMessaging;
 
 namespace Orange.Services.EmailAPI.Extensions;
 

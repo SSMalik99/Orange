@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Orange.MessageBus;
 using Orange.Services.AuthAPI.Models.Dto;
 using Orange.Services.AuthAPI.Service;
 using Orange.Services.AuthAPI.Service.IService;
+using Orange.Services.AuthAPI.Utility;
 
 namespace Orange.Services.AuthAPI.Controllers;
 
@@ -10,12 +12,14 @@ namespace Orange.Services.AuthAPI.Controllers;
 public class AuthApiController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private ResponseDto _responseDto;
+    private readonly ResponseDto _responseDto;
+    private readonly IMessageBus _messageBus;
 
-    public AuthApiController(IAuthService authService)
+    public AuthApiController(IAuthService authService, IMessageBus messageBus)
     {
         _authService = authService;
         _responseDto = new ResponseDto();
+        _messageBus = messageBus;
     }
     
     
@@ -28,14 +32,21 @@ public class AuthApiController : ControllerBase
         if (string.IsNullOrEmpty(errorMessage))
         {
             _responseDto.Message = "Registered successfully.";
+            
+            // Send Email to user via service bus
+            await _messageBus.PublishMessageAsync(new
+            {
+                registerDto.Email,
+                registerDto.FirstName,
+                registerDto.LastName,
+            }, StaticData.AzureRegisterQueueName);
+            
+            
             return Ok(_responseDto);
         }
         
         _responseDto.Message = errorMessage;
         _responseDto.IsSuccess = false;
-        
-        Console.WriteLine(_responseDto.IsSuccess);
-        
         return BadRequest(_responseDto);
     }
 

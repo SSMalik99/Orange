@@ -6,5 +6,6 @@ public interface IEmailService
 {
     Task<bool> SendEmail(string to, string subject, string body);
     Task SendCartEmail(CartDto cart);
-    
+    Task SendRegisterUserEmail(RegisterUserDto registerUserDto);
+
 }

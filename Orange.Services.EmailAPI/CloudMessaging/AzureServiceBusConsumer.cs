@@ -1,25 +1,24 @@
 using System.Text;
-using System.Text.Unicode;
 using Azure.Messaging.ServiceBus;
 using Newtonsoft.Json;
 using Orange.Services.EmailAPI.Models.Dto;
 using Orange.Services.EmailAPI.Services;
-using Orange.Services.EmailAPI.Services.IServices;
 using Orange.Services.EmailAPI.Utility;
 
 namespace Orange.Services.EmailAPI.CloudMessaging;
 
 public class AzureServiceBusConsumer : IAzureServiceBusConsumer
 {
-    private ServiceBusProcessor _emailCartProcessor;
-    private readonly ILogger<AzureServiceBusConsumer> _logger;
+    private readonly ServiceBusProcessor _emailCartProcessor;
+    private readonly ServiceBusProcessor _userRegistrationProcessor;
     private readonly EmailService _emailService;
     
-    public AzureServiceBusConsumer( ILogger<AzureServiceBusConsumer> logger, EmailService emailService )
+    public AzureServiceBusConsumer( EmailService emailService )
     {
         var client = new ServiceBusClient(StaticData.AzureQueueConnectionString);
         _emailCartProcessor = client.CreateProcessor(StaticData.AzureEmailCartQueueName);
-        _logger = logger;
+        _userRegistrationProcessor = client.CreateProcessor(StaticData.AzureRegisterQueueName);
+        
         _emailService = emailService;
         
     }
@@ -29,11 +28,15 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
         _emailCartProcessor.ProcessMessageAsync += OnEmailCartReceived;
         _emailCartProcessor.ProcessErrorAsync += OnErrorOccured;
         await _emailCartProcessor.StartProcessingAsync();
+        
+        _userRegistrationProcessor.ProcessMessageAsync += OnUserRegistrationReceived;
+        _userRegistrationProcessor.ProcessErrorAsync += OnErrorOccured;
+        await _userRegistrationProcessor.StartProcessingAsync();
     }
-
+    
     private Task OnErrorOccured(ProcessErrorEventArgs arg)
     {
-        _logger.LogError( arg.Exception, "Error occured");
+        Console.WriteLine(arg.Exception);
         // Send Email to admin - TODO
         return Task.CompletedTask;
     }
@@ -43,31 +46,44 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
         var message = arg.Message;
         try
         {
-            
-            _logger.LogInformation( $"Received message: {message}");
             var body = Encoding.UTF8.GetString(message.Body);
-
             var cartDto = JsonConvert.DeserializeObject<CartDto>(body);
-            _logger.LogInformation( $"Processing cart: {JsonConvert.SerializeObject(cartDto)}");
-            
-            // Send Email - TODO
             if (cartDto != null) await _emailService.SendCartEmail(cartDto);
-
             await arg.CompleteMessageAsync( message);
 
         }
         catch (Exception e)
         {
-            _logger.LogError( e, "Error occured");
+            Console.WriteLine(e);
             await arg.AbandonMessageAsync( message);
         }
         
+    }
+    
+    private async Task OnUserRegistrationReceived(ProcessMessageEventArgs arg)
+    {
+        var message = arg.Message;
+        try
+        {
+            var body = Encoding.UTF8.GetString(message.Body);
+            var registerUserDto = JsonConvert.DeserializeObject<RegisterUserDto>(body);
+            if (registerUserDto != null) await _emailService.SendRegisterUserEmail(registerUserDto);
+            await arg.CompleteMessageAsync( message);
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            await arg.AbandonMessageAsync( message);
+        }
     }
 
     public async Task StopConsumingAsync()
     {
         await _emailCartProcessor.StopProcessingAsync();
         await _emailCartProcessor.DisposeAsync();
+        await _userRegistrationProcessor.StopProcessingAsync();
+        await _userRegistrationProcessor.DisposeAsync();
         
     }
 }
