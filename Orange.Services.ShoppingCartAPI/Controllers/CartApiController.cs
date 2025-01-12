@@ -260,7 +260,19 @@ public class CartApiController : ControllerBase
     {
         try
         {
-            await _messageBus.PublishMessageAsync(cartDto, StaticData.AzureEmailCartQueueName);
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _messageBus.PublishMessageAsync(cartDto, StaticData.AzureEmailCartQueueName);
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception
+                    Console.WriteLine($"Error publishing message: {ex}");
+                }
+            });
+            
             _responseDto.Message = "Cart will be sent to your email address. Please wait for few seconds before sending again.";
             return Ok(_responseDto);
             

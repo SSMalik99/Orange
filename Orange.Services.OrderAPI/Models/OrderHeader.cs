@@ -18,7 +18,7 @@ public class OrderHeader
     public string? PhoneNumber { get; set; } 
     
     public DateTime OrderTime { get; set; }
-    public OrderStatus Status { get; set; }
+    public string Status { get; set; }
     
     public string? PaymentIntentId { get; set; }
     public string? PaymentMethod { get; set; }

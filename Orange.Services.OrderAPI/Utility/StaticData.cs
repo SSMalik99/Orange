@@ -10,6 +10,10 @@ public static class StaticData
     
     public static string AzureQueueConnectionString { get; set; }
     public static string AzureEmailCartQueueName { get; set; }
+    
+    public static string RoleAdmin = "ADMIN";
+    public static string RoleCustomer = "CUSTOMER";
+    public static string RoleEmployee = "EMPLOYEE";
 }
 
 public static class ApiCallHelper

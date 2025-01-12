@@ -1,4 +1,4 @@
-namespace Orange.Services.OrderAPI.Models.Enum;
+namespace Orange.Web.Models.Order;
 
 public static class OrderStatus
 {

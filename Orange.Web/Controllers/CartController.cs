@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Orange.Web.Models.Cart;
+using Orange.Web.Models.Order;
+using Orange.Web.Services;
 using Orange.Web.Services.IService;
 using Orange.Web.Utility;
 
@@ -12,9 +14,11 @@ namespace Orange.Web.Controllers;
 public class CartController : Controller
 {
     private readonly ICartService _cartService;
-    public CartController(ICartService cartService)
+    private readonly IOrderService _orderService;
+    public CartController(ICartService cartService, OrderService orderService)
     {
         _cartService = cartService;
+        _orderService = orderService;
     }
 
     [Authorize]
@@ -96,7 +100,6 @@ public class CartController : Controller
     {
         var cartDto = await LoadCartInformation();
         cartDto.CartHeader.Email = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)?.Value;
-        Console.WriteLine(cartDto.CartHeader.Email);
         var responseDto = await _cartService.EmailCartAsync(cartDto);
         if (responseDto.IsSuccess)
         {
@@ -109,6 +112,39 @@ public class CartController : Controller
         return RedirectToAction(nameof(Index));
         
     }
+
+    [HttpPost("Checkout")]
+    public async Task<IActionResult> Checkout(CartDto cartDto)
+    {
+        var cart = await LoadCartInformation();
+        cart.CartHeader.Email = cartDto.CartHeader.Email;
+        cart.CartHeader.FirstName = cartDto.CartHeader.FirstName;
+        cart.CartHeader.LastName = cartDto.CartHeader.LastName;
+        cart.CartHeader.PhoneNumber = cartDto.CartHeader.PhoneNumber;
+        
+        var response = await _orderService.CreateOrderAsync(cart);
+        if (response.IsSuccess)
+        {
+            var orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.Data));
+            
+            TempData[NotificationType.Success] = response.Message;
+            // Creat for stripe TODO
+            
+            return RedirectToAction(nameof(Index));
+        }
+        
+        TempData[NotificationType.Error] = response.Message;
+        return View(cartDto);
+    }
+
+    
+    public  IActionResult Confirmation(string orderId)
+    {
+        return View(orderId);
+        
+    }
+    
+    
     private async Task<CartDto> LoadCartInformation()
     {
         var userId = User.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;
@@ -120,4 +156,6 @@ public class CartController : Controller
         return cartDto;
 
     }
+    
+    
 }

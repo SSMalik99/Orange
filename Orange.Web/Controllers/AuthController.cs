@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
-using Orange.Web.Services;
 using Orange.Web.Models.Auth;
 using Orange.Web.Services.IService;
 using Orange.Web.Utility;
@@ -97,28 +96,33 @@ public class AuthController:Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginRequestDto model)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid) return View(model);
+        
+        var apiResponse = await _authService.LoginAsync(model);
+        
+        if (!apiResponse.IsSuccess || apiResponse.Data == null)
         {
-            var apiResponse = await _authService.LoginAsync(model);
-            
-            if (apiResponse.IsSuccess)
-            {
-                var loginResponse = JsonConvert.DeserializeObject<LoginResponseDto>(Convert.ToString(apiResponse.Data));
-                TempData[NotificationType.Success] = "Login successful";
-                await AuthenticateUser(loginResponse);
-                _tokenProvider.SetToken(loginResponse.Token);
-                return RedirectToAction("Index", "Home");
-            }
-            TempData[NotificationType.Error] = apiResponse.Message;
-            
+            TempData[NotificationType.Error] = apiResponse.Message ?? "Login Failed";
+            return View(model);
         }
         
-        return View(model);
+        var loginResponse = JsonConvert.DeserializeObject<LoginResponseDto>(Convert.ToString(apiResponse.Data) ?? string.Empty);
+                
+        if (loginResponse == null)
+        {
+            TempData[NotificationType.Error] = "Login Failed";
+            return View(model);
+        }
+                
+        TempData[NotificationType.Success] = "Login successful";
+        await AuthenticateUser(loginResponse);
+        _tokenProvider.SetToken(loginResponse.Token);
+        return RedirectToAction("Index", "Home");
     }
     [HttpPost]
     public async Task<IActionResult> Logout()
     {
-        Console.WriteLine("INside me");
+        
         await HttpContext.SignOutAsync();
         _tokenProvider.RevokeToken();
         return RedirectToAction(nameof(HomeController.Index), "Home");

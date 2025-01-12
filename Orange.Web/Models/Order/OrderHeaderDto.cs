@@ -1,7 +1,5 @@
-using Orange.Services.OrderAPI.Models.Enum;
-using Orange.Services.OrderAPI.Utility;
 
-namespace Orange.Services.OrderAPI.Models.Dto;
+namespace Orange.Web.Models.Order;
 
 public class OrderHeaderDto
 {

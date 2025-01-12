@@ -1,4 +1,6 @@
-namespace Orange.Services.OrderAPI.Models.Dto;
+using Orange.Web.Models.Product;
+
+namespace Orange.Web.Models.Order;
 
 public class OrderDetailDto
 {

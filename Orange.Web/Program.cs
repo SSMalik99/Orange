@@ -14,6 +14,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<ICouponService, CouponService>();
 builder.Services.AddHttpClient<IAuthService, AuthService>();
 builder.Services.AddHttpClient<ICartService, CartService>();
+builder.Services.AddHttpClient<IOrderService, OrderService>();
 
 
 
@@ -24,6 +25,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
@@ -33,10 +35,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 
 
-SharedDetail.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"];
-SharedDetail.AuthApiBase = builder.Configuration["ServiceUrls:AuthAPI"];
-SharedDetail.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
-SharedDetail.CartApiBase = builder.Configuration["ServiceUrls:CartAPI"];
+SharedDetail.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"] ?? throw new NullReferenceException();
+SharedDetail.AuthApiBase = builder.Configuration["ServiceUrls:AuthAPI"] ?? throw new NullReferenceException();
+SharedDetail.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"] ?? throw new NullReferenceException();
+SharedDetail.CartApiBase = builder.Configuration["ServiceUrls:CartAPI"] ?? throw new NullReferenceException();
+SharedDetail.OrderApiBase = builder.Configuration["ServiceUrls:OrderAPI"] ?? throw new NullReferenceException();
+
 
 var app = builder.Build();
 
