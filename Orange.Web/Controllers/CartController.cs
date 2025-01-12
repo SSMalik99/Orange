@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Orange.Web.Models.Cart;
@@ -16,7 +17,15 @@ public class CartController : Controller
         _cartService = cartService;
     }
 
+    [Authorize]
     public async Task<IActionResult> Index()
+    {
+        return View(await LoadCartInformation());
+    }
+    
+    
+    [Authorize]
+    public async Task<IActionResult> Checkout()
     {
         return View(await LoadCartInformation());
     }
