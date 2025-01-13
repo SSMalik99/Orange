@@ -14,6 +14,8 @@ public static class StaticData
     public static string RoleAdmin = "ADMIN";
     public static string RoleCustomer = "CUSTOMER";
     public static string RoleEmployee = "EMPLOYEE";
+
+    public static string PriceCurrency = "CAD"; // Canadian Dollar by default 
 }
 
 public static class ApiCallHelper

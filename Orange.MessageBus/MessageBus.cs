@@ -1,7 +1,6 @@
 using System.Text;
 using Azure.Messaging.ServiceBus;
 using Newtonsoft.Json;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Orange.MessageBus;
 

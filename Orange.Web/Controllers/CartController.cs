@@ -1,11 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Orange.Web.Models.Cart;
 using Orange.Web.Models.Order;
-using Orange.Web.Services;
 using Orange.Web.Services.IService;
 using Orange.Web.Utility;
 
@@ -15,7 +13,7 @@ public class CartController : Controller
 {
     private readonly ICartService _cartService;
     private readonly IOrderService _orderService;
-    public CartController(ICartService cartService, OrderService orderService)
+    public CartController(ICartService cartService, IOrderService orderService)
     {
         _cartService = cartService;
         _orderService = orderService;
@@ -29,6 +27,7 @@ public class CartController : Controller
     
     
     [Authorize]
+    [HttpGet("cart/checkout")]
     public async Task<IActionResult> Checkout()
     {
         return View(await LoadCartInformation());
@@ -113,7 +112,7 @@ public class CartController : Controller
         
     }
 
-    [HttpPost("Checkout")]
+    [HttpPost]
     public async Task<IActionResult> Checkout(CartDto cartDto)
     {
         var cart = await LoadCartInformation();
@@ -127,10 +126,26 @@ public class CartController : Controller
         {
             var orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.Data));
             
-            TempData[NotificationType.Success] = response.Message;
-            // Creat for stripe TODO
             
-            return RedirectToAction(nameof(Index));
+            var domain = Request.Scheme + "://" + Request.Host.Value;
+            var stripeDto = new StripeRequestDto
+            {
+                ApprovedUrl = domain + "/cart/Confirmation?orderId="+orderHeaderDto.Id,
+                CancelUrl = domain + "/cart/checkout",
+                OrderHeader = orderHeaderDto
+            };
+            var stripeResponse = await _orderService.CreatePaymentSessionAsync(stripeDto);
+            
+            if (stripeResponse.IsSuccess)
+            {
+                var stripeResponseData = JsonConvert.DeserializeObject<StripeRequestDto>(Convert.ToString(stripeResponse.Data));
+                Response.Headers.Append("Location", stripeResponseData?.StripeSessionUrl);
+
+                return new StatusCodeResult(StatusCodes.Status303SeeOther);
+            }
+            
+            TempData[NotificationType.Error] = stripeResponse.Message;
+            return RedirectToAction(nameof(Checkout));
         }
         
         TempData[NotificationType.Error] = response.Message;

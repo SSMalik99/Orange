@@ -3,9 +3,11 @@ using Orange.MessageBus;
 using Orange.Services.OrderAPI;
 using Orange.Services.OrderAPI.Data;
 using Orange.Services.OrderAPI.Extensions;
-using Orange.Services.OrderAPI.Services;
 using Orange.Services.OrderAPI.Services.IServices;
 using Orange.Services.OrderAPI.Utility;
+
+using CouponService = Orange.Services.OrderAPI.Services.CouponService;
+using ProductService = Orange.Services.OrderAPI.Services.ProductService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,7 @@ StaticData.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"] ?? t
 StaticData.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"] ?? throw new InvalidOperationException();
 
 builder.Configuration.AddJsonFile("Azure.secret.json", optional: false, reloadOnChange: false);
+builder.Configuration.AddJsonFile("Stripe.secret.json", optional: false, reloadOnChange: false);
 
 StaticData.AzureQueueConnectionString = builder.Configuration["serviceBusConnectionString"] ?? throw new InvalidOperationException();
 StaticData.AzureEmailCartQueueName = builder.Configuration["TopicAndQueueName:EmailShoppingCartQueue"] ?? throw new InvalidOperationException();
@@ -84,6 +87,9 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
     });
 }
+
+Stripe.StripeConfiguration.ApiKey = builder.Configuration["StripeSecretApiKey"] ?? throw new InvalidOperationException();
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
