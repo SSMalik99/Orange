@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 using Orange.Services.OrderAPI.Models.Dto;
 
 namespace Orange.Services.OrderAPI.Models;

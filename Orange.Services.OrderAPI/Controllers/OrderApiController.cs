@@ -56,7 +56,8 @@ public class OrderApiController : ControllerBase
             //orderHeaderDto.Id = orderCreated.Id;
             
             _response.Data = _mapper.Map<OrderHeaderDto>(orderCreated.Entity);
-            return Created("", orderCreated);
+            _response.Message = "Order is created but not paid yet";
+            return Ok(_response);
         }
         catch (Exception e)
         {
@@ -105,7 +106,7 @@ public class OrderApiController : ControllerBase
             var stripePaymentSession = await paymentService.CreateAsync(paymentOptions);
 
             stripeRequestDto.StripeSessionUrl = stripePaymentSession.Url;
-            var orderHeader = _dbContext.OrderHeaders.FirstOrDefault(oh => oh.Id == stripeRequestDto.OrderHeader.Id);
+            var orderHeader = _dbContext.OrderHeaders.FirstOrDefault(oh => oh.OrderHeaderId == stripeRequestDto.OrderHeader.OrderHeaderId);
             
             if (orderHeader == null)
             {

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Orange.Services.OrderAPI.Models.Dto;
 using Orange.Services.OrderAPI.Models.Enum;
 
 namespace Orange.Services.OrderAPI.Models;
@@ -6,7 +7,7 @@ namespace Orange.Services.OrderAPI.Models;
 public class OrderHeader
 {
     [Key]
-    public Guid Id { get; set; }
+    public Guid OrderHeaderId { get; set; }
     public string UserId { get; set; }
     public string? CouponCode { get; set; }
     public double Discount { get; set; }

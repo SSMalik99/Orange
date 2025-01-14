@@ -5,7 +5,7 @@ namespace Orange.Services.OrderAPI.Models.Dto;
 
 public class OrderHeaderDto
 {
-    public Guid Id { get; set; }
+    public Guid OrderHeaderId { get; set; }
     public string UserId { get; set; }
     public string? CouponCode { get; set; }
     public double Discount { get; set; }

@@ -130,7 +130,7 @@ public class CartController : Controller
             var domain = Request.Scheme + "://" + Request.Host.Value;
             var stripeDto = new StripeRequestDto
             {
-                ApprovedUrl = domain + "/cart/Confirmation?orderId="+orderHeaderDto.Id,
+                ApprovedUrl = domain + "/cart/Confirmation?orderId="+orderHeaderDto.OrderHeaderId,
                 CancelUrl = domain + "/cart/checkout",
                 OrderHeader = orderHeaderDto
             };
@@ -152,10 +152,12 @@ public class CartController : Controller
         return View(cartDto);
     }
 
-    
-    public  IActionResult Confirmation(string orderId)
+    [HttpGet("cart/confirmation")]
+    public  IActionResult Confirmation(string? orderId)
     {
-        return View(orderId);
+        Console.WriteLine(orderId);
+        TempData[NotificationType.Success] = "Your order is confirmed";
+        return View();
         
     }
     
