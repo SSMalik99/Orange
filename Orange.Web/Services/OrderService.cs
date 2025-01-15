@@ -31,4 +31,14 @@ public class OrderService(IBaseService baseService) : IOrderService
             Body = stripeRequestDto,
         });
     }
+
+    public async Task<ResponseDto> ValidateStripeSessionAsync(string orderHeaderId)
+    {
+        return await baseService.SendAsync(new RequestDto()
+        {
+            ApiType = SharedDetail.ApiType.Post,
+            Url = SharedDetail.OrderApiBase+"/api/order/ValidateStripeSession",
+            Body = orderHeaderId,
+        });
+    }
 }

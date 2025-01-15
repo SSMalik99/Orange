@@ -2,6 +2,7 @@ using System.Net;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Orange.Services.OrderAPI.Data;
 using Orange.Services.OrderAPI.Models;
 using Orange.Services.OrderAPI.Models.Dto;
@@ -137,5 +138,61 @@ public class OrderApiController : ControllerBase
             return Ok(ResponseHelper.GenerateErrorResponse(e.Message));
         }
     }
+    
+    
+    [Authorize]
+    [HttpPost("ValidateStripeSession")]
+    public async Task<IActionResult> ValidateStripeSession([FromBody] Guid orderHeaderId)
+    {
+        try
+        {
+            var orderHeader = await _dbContext.OrderHeaders.FirstOrDefaultAsync(oh => oh.OrderHeaderId == orderHeaderId);
+
+            
+            if (orderHeader == null)
+            {
+                return BadRequest(ResponseHelper.GenerateErrorResponse("Invalid order, please try again!"));
+            }
+            
+            var stripeService = new SessionService();
+
+            var paymentSession = await stripeService.GetAsync(orderHeader.StripeSessionId);
+
+            var paymentIntentService = new PaymentIntentService();
+            var paymentIntent = await paymentIntentService.GetAsync(paymentSession.PaymentIntentId);
+            
+            switch (paymentIntent.Status)
+            {
+                case "succeeded":
+                case "complete":
+                    
+                    orderHeader.PaymentIntentId = paymentIntent.Id;
+                    orderHeader.Status = OrderStatus.Approved;
+                    await _dbContext.SaveChangesAsync();
+                
+                    _response.Message = "Payment for the order is succeeded";
+                    _response.Data = _mapper.Map<OrderHeaderDto>(orderHeader);
+                    break;
+                case "failed":
+                    _response.Message = "Payment for the order is failed";
+                    break;
+                case "cancelled":
+                    _response.Message = "Payment for the order is cancelled";
+                    break;
+                default:
+                    _response.Message = "Payment for the order is failed";
+                    break;
+            }
+            
+            return Ok(_response);
+        }
+        catch (Exception e)
+        {
+            return Ok(ResponseHelper.GenerateErrorResponse(e.Message));
+        }
+    }
+    
+    
+    
     
 }

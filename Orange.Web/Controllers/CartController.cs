@@ -153,11 +153,26 @@ public class CartController : Controller
     }
 
     [HttpGet("cart/confirmation")]
-    public  IActionResult Confirmation(string? orderId)
+    public async Task<IActionResult> Confirmation(string? orderId)
     {
-        Console.WriteLine(orderId);
-        TempData[NotificationType.Success] = "Your order is confirmed";
-        return View();
+        var responseDto = await _orderService.ValidateStripeSessionAsync(orderId);
+        
+        if (responseDto.IsSuccess)
+        {
+            var orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(responseDto.Data));
+
+            if (orderHeaderDto.Status == OrderStatus.Approved)
+            {
+                TempData[NotificationType.Success] = "Your order is confirmed";
+                TempData[NotificationType.Success] = responseDto.Message;
+                return View();
+            }
+            
+            
+        }
+        
+        TempData[NotificationType.Error] = responseDto.Message;
+        return RedirectToAction(nameof(Index));
         
     }
     
