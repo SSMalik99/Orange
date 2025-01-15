@@ -76,13 +76,22 @@ public class OrderApiController : ControllerBase
             {
                 SuccessUrl = stripeRequestDto.ApprovedUrl,
                 LineItems = [],
-                Mode = "payment",
+                Mode = "payment"
             };
 
-            if (stripeRequestDto.OrderHeader.OrderDetails == null)
+            var discountsObj = new List<SessionDiscountOptions>()
+            {
+                new SessionDiscountOptions()
+                {
+                    Coupon = stripeRequestDto.OrderHeader?.CouponCode,
+                }
+            }; 
+
+            if (stripeRequestDto.OrderHeader?.OrderDetails == null)
             {
                 return BadRequest(ResponseHelper.GenerateErrorResponse("Payment Session Not Found"));
             }
+            
             
             foreach (var product in stripeRequestDto.OrderHeader.OrderDetails)
             {
@@ -100,6 +109,11 @@ public class OrderApiController : ControllerBase
                     Quantity = product.Quantity,
                 };
                 paymentOptions.LineItems.Add(sessionLineItem);
+            }
+
+            if (stripeRequestDto.OrderHeader.Discount > 0)
+            {
+                paymentOptions.Discounts = discountsObj;
             }
 
             var paymentService = new SessionService();

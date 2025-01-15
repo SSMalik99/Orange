@@ -75,12 +75,13 @@ public class CouponController : Controller
         
         if (response.IsSuccess)
         {
+            Console.WriteLine("Delete coupon----------");
             TempData[NotificationType.Success] = response.Message;
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
         
         TempData[NotificationType.Error] = response.Message;
-        return View(model);
+        return RedirectToAction(nameof(Delete));
         
     }
 }

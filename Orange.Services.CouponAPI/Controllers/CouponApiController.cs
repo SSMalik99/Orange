@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Orange.Services.CouponAPI.Data;
 using Orange.Services.CouponAPI.Dto;
 using Orange.Services.CouponAPI.Models;
+using Orange.Services.CouponAPI.Utility;
+using Coupon = Orange.Services.CouponAPI.Models.Coupon;
 
 namespace Orange.Services.CouponAPI.Controllers;
 
@@ -101,9 +103,23 @@ public class CouponApiController : ControllerBase
     {
         try
         {
+            
+            
             var obj = _mapper.Map<Coupon>(couponDto);
             _dbContext.Coupons.Add(obj);
             _dbContext.SaveChanges();
+            
+            var stripeCouponOptions = new Stripe.CouponCreateOptions
+            {
+                AmountOff = (long)(couponDto.CouponAmount * 100),
+                Name = couponDto.CouponCode,
+                Currency = StaticDetail.PriceCurrency,
+                Id = couponDto.CouponCode,
+            };
+            var stripService = new Stripe.CouponService();
+            stripService.Create(stripeCouponOptions);
+
+
             _responseDto.Data = _mapper.Map<CouponDto>(obj);
             _responseDto.Message = "Coupon successfully added.";
             return Ok(_responseDto);
@@ -152,6 +168,11 @@ public class CouponApiController : ControllerBase
             if (coupon is null) return Ok(ResponseHelper.NotFoundResponseDto());
             _dbContext.Coupons.Remove(coupon);
             _dbContext.SaveChanges();
+            
+            var stripService = new Stripe.CouponService();
+            stripService.Delete(coupon.CouponCode);
+            
+            _responseDto.IsSuccess = true;
             _responseDto.Message = "Coupon successfully deleted.";
             return Ok(_responseDto);
             

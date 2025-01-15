@@ -21,6 +21,9 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddEndpointsApiExplorer();
 builder.AddSwaggerConfig();
 
+builder.Configuration.AddJsonFile("Stripe.secret.json", optional: false, reloadOnChange: false);
+
+
 // Add DB
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -47,6 +50,8 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
     });
 }
+
+Stripe.StripeConfiguration.ApiKey = builder.Configuration["StripeSecretApiKey"] ?? throw new InvalidOperationException();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
