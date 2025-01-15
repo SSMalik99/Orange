@@ -1,0 +1,6 @@
+@Orange.Services.RewardAPI_HostAddress = http://localhost:5072
+
+GET {{Orange.Services.RewardAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
