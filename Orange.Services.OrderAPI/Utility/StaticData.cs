@@ -5,11 +5,12 @@ namespace Orange.Services.OrderAPI.Utility;
 
 public static class StaticData
 {
-    public static string ProductApiBase { get; set; }
-    public static string CouponApiBase { get; set; }
+    public static string ProductApiBase { get; set; } = string.Empty;
+    public static string CouponApiBase { get; set; } = string.Empty;
     
-    public static string AzureQueueConnectionString { get; set; }
-    public static string AzureEmailCartQueueName { get; set; }
+    public static string AzureQueueConnectionString { get; set; } = string.Empty;
+    public static string AzureEmailCartQueueName { get; set; } = string.Empty;
+    public static string OrderCreatedTopicName { get; set; } = string.Empty;
     
     public static string RoleAdmin = "ADMIN";
     public static string RoleCustomer = "CUSTOMER";

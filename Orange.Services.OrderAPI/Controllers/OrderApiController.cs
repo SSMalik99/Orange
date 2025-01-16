@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Orange.MessageBus;
 using Orange.Services.OrderAPI.Data;
 using Orange.Services.OrderAPI.Models;
 using Orange.Services.OrderAPI.Models.Dto;
@@ -23,12 +24,14 @@ public class OrderApiController : ControllerBase
     private readonly AppDbContext _dbContext;
     private readonly IProductService _productService;
     private readonly ICouponService _couponService;
+    private readonly IMessageBus _messageBus;
 
     public OrderApiController(
         IMapper mapper,
         AppDbContext dbContext,
         IProductService productService,
-        ICouponService couponService
+        ICouponService couponService,
+        IMessageBus messageBus
         )
     {
         _mapper = mapper;
@@ -36,7 +39,7 @@ public class OrderApiController : ControllerBase
         _dbContext = dbContext;
         _productService = productService;
         _couponService = couponService;
-        
+        _messageBus = messageBus;
     }
 
     
@@ -169,7 +172,15 @@ public class OrderApiController : ControllerBase
                     orderHeader.PaymentIntentId = paymentIntent.Id;
                     orderHeader.Status = OrderStatus.Approved;
                     await _dbContext.SaveChangesAsync();
-                
+
+                    var rewardDto = new RewardsDto()
+                    {
+                        UserId = orderHeader.UserId,
+                        OrderId = orderHeader.OrderHeaderId.ToString(),
+                        RewardPoints = Convert.ToInt32(orderHeader.OrderTotal)
+                    };
+                    
+                    _ = _messageBus.PublishMessageAsync(rewardDto, StaticData.OrderCreatedTopicName);
                     _response.Message = "Payment for the order is succeeded";
                     _response.Data = _mapper.Map<OrderHeaderDto>(orderHeader);
                     break;

@@ -24,7 +24,7 @@ builder.Configuration.AddJsonFile("Stripe.secret.json", optional: false, reloadO
 
 StaticData.AzureQueueConnectionString = builder.Configuration["serviceBusConnectionString"] ?? throw new InvalidOperationException();
 StaticData.AzureEmailCartQueueName = builder.Configuration["TopicAndQueueName:EmailShoppingCartQueue"] ?? throw new InvalidOperationException();
-
+StaticData.OrderCreatedTopicName = builder.Configuration["TopicAndQueueName:OrderCreatedTopicName"] ?? throw new InvalidOperationException();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
