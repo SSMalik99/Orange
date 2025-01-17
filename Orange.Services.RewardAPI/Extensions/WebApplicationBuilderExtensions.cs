@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Orange.Services.RewardAPI.CloudMessaging;
 
 namespace Orange.Services.RewardAPI.Extensions;
 
@@ -81,3 +82,29 @@ public static class WebApplicationBuilderExtensions
 }
 
 
+public static class ApplicationBuilderExtensions
+{
+    private static IAzureServiceBusConsumer ServiceBusConsumer { get; set; }
+    
+    public static IApplicationBuilder UseAzureServiceBusConsumer(this IApplicationBuilder app)
+    {
+        ServiceBusConsumer = app.ApplicationServices.GetService<IAzureServiceBusConsumer>();
+        var hostApplicationLifetime = app.ApplicationServices.GetService<IHostApplicationLifetime>();
+
+        hostApplicationLifetime.ApplicationStarted.Register(OnStart);
+        hostApplicationLifetime.ApplicationStopped.Register(OnStop);
+        
+        return app;
+        
+    }
+
+    private static void OnStop()
+    {
+        ServiceBusConsumer.StopConsumingAsync();
+    }
+
+    private static void OnStart()
+    {
+        ServiceBusConsumer.StartConsumingAsync();
+    }
+}

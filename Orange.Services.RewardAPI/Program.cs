@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Orange.Services.RewardAPI;
 using Orange.Services.RewardAPI.Data;
 using Orange.Services.RewardAPI.Extensions;
+using Orange.Services.RewardAPI.Services;
 using Orange.Services.RewardAPI.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +38,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionDb"));
 });
 
+var optionBuilder = new DbContextOptionsBuilder<AppDbContext>();
+optionBuilder.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionDb"));
+
+builder.Services.AddSingleton<RewardService>(provider => new RewardService(optionBuilder.Options));
 
 
 // Authentication and Authorization

@@ -11,28 +11,37 @@ namespace Orange.Services.RewardAPI.Services;
 public class RewardService : IRewardService
 {
     
-    private readonly DbContextOptions _dbOptions;
-    private readonly IRewardService _rewardService;
+    private DbContextOptions<AppDbContext> _dbOptions;
     
 
-    public RewardService(DbContextOptions<AppDbContext> dbOptions, IRewardService rewardService)
+    public RewardService(DbContextOptions<AppDbContext> dbOptions)
     {
         _dbOptions = dbOptions;
-        _rewardService = rewardService;
     }
 
-    public Task UpdateRewards(RewardMessage message)
+    public async Task UpdateRewards(RewardMessage message)
     {
-        throw new NotImplementedException();
-        // var reward = new Rewards()
-        // {
-        //     OrderId = message.OrderId,
-        //     UserId = message.UserId,
-        //     RewardPoints = message.RewardPoints,
-        //     RewardDate = DateTime.Now,
-        // };
+        try
+        {
+            await using var db = new AppDbContext(_dbOptions);
+            var reward = new Rewards()
+            {
+                OrderId = message.OrderId,
+                UserId = message.UserId,
+                RewardPoints = message.RewardPoints,
+                RewardDate = DateTime.Now,
+            };
+            
+            await db.Rewards.AddAsync(reward);
+            await db.SaveChangesAsync();
+            
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }   
 
-        //await using var db = new AppDbContext(_dbOptions);
+        
         
     }
 }
