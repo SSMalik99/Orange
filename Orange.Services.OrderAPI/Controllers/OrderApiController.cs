@@ -177,7 +177,8 @@ public class OrderApiController : ControllerBase
                     {
                         UserId = orderHeader.UserId,
                         OrderId = orderHeader.OrderHeaderId.ToString(),
-                        RewardPoints = Convert.ToInt32(orderHeader.OrderTotal)
+                        RewardPoints = Convert.ToInt32(orderHeader.OrderTotal),
+                        Email = orderHeader.Email
                     };
                     
                     _ = _messageBus.PublishMessageAsync(rewardDto, StaticData.OrderCreatedTopicName);

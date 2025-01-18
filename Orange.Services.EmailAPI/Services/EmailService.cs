@@ -7,6 +7,7 @@ using Orange.Services.EmailAPI.Services.IServices;
 using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Options;
+using Orange.Services.EmailAPI.ServiceBusMessages;
 
 namespace Orange.Services.EmailAPI.Services;
 
@@ -110,5 +111,21 @@ public class EmailService : IEmailService
         message.Append("<br/></div>");
         
         await SendEmail(to:registerUserDto.Email, body: message.ToString(), subject: "Registration Successful");
+    }
+
+    public async  Task SendOrderCreatedEmailAsync(RewardMessage rewardMessage)
+    {
+        if (rewardMessage.Email == null)
+        {
+            return;
+        }
+        
+        var message = new StringBuilder();
+
+        message.AppendLine("<br/><h3>Order is placed from Orange.</h3>");
+        message.AppendLine("<div><br/>Order ID -" + rewardMessage.OrderId);
+        message.AppendLine("<br/> Email - "+rewardMessage.Email);
+        message.Append("<br/></div>");
+        await SendEmail(to:rewardMessage.Email, body: message.ToString(), subject: "Order Placed Successfully");
     }
 }

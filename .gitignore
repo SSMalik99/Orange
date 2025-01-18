@@ -6,3 +6,5 @@ riderModule.iml
 *.db
 *.DotSettings.user
 *.secret.json
+*.db-shm
+*.db-wal

@@ -25,6 +25,9 @@ builder.Configuration.AddJsonFile("Azure.secret.json", optional: false, reloadOn
 StaticData.AzureQueueConnectionString = builder.Configuration["serviceBusConnectionString"] ?? throw new InvalidOperationException();
 StaticData.AzureEmailCartQueueName = builder.Configuration["TopicAndQueueName:EmailShoppingCartQueue"] ?? throw new InvalidOperationException();
 StaticData.AzureRegisterQueueName = builder.Configuration["TopicAndQueueName:UserRegisteredQueue"] ?? throw new InvalidOperationException();
+StaticData.AzureOrderCreatedTopicName = builder.Configuration["TopicAndQueueName:OrderCreatedTopicName"] ?? throw new InvalidOperationException();
+StaticData.AzureOrderCreatedEmailSubscription = builder.Configuration["TopicAndQueueName:OrderCreatedEmailSubscription"] ?? throw new InvalidOperationException();
+
 
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));

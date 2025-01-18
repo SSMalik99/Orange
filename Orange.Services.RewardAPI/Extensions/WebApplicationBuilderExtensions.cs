@@ -84,15 +84,15 @@ public static class WebApplicationBuilderExtensions
 
 public static class ApplicationBuilderExtensions
 {
-    private static IAzureServiceBusConsumer ServiceBusConsumer { get; set; }
+    private static IAzureServiceBusConsumer? ServiceBusConsumer { get; set; }
     
     public static IApplicationBuilder UseAzureServiceBusConsumer(this IApplicationBuilder app)
     {
         ServiceBusConsumer = app.ApplicationServices.GetService<IAzureServiceBusConsumer>();
         var hostApplicationLifetime = app.ApplicationServices.GetService<IHostApplicationLifetime>();
 
-        hostApplicationLifetime.ApplicationStarted.Register(OnStart);
-        hostApplicationLifetime.ApplicationStopped.Register(OnStop);
+        hostApplicationLifetime?.ApplicationStarted.Register(OnStart);
+        hostApplicationLifetime?.ApplicationStopped.Register(OnStop);
         
         return app;
         

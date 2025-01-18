@@ -8,11 +8,13 @@ public class RegisterQueueConsumer : IRegisterQueueConsumer
 {
     private readonly ServiceBusProcessor _emailCartProcessor;
     private readonly EmailService _emailService;
+    private readonly ServiceBusProcessor _rewardProcessor;
     
     public RegisterQueueConsumer( EmailService emailService )
     {
         var client = new ServiceBusClient(StaticData.AzureQueueConnectionString);
         _emailCartProcessor = client.CreateProcessor(StaticData.AzureRegisterQueueName);
+        
         
         _emailService = emailService;
         

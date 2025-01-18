@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Orange.Services.RewardAPI;
+using Orange.Services.RewardAPI.CloudMessaging;
 using Orange.Services.RewardAPI.Data;
 using Orange.Services.RewardAPI.Extensions;
 using Orange.Services.RewardAPI.Services;
@@ -20,8 +21,8 @@ StaticData.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"] ?? thr
 builder.Configuration.AddJsonFile("Azure.secret.json", optional: false, reloadOnChange: false);
 
 StaticData.AzureQueueConnectionString = builder.Configuration["serviceBusConnectionString"] ?? throw new InvalidOperationException();
-StaticData.AzureEmailCartQueueName = builder.Configuration["TopicAndQueueName:EmailShoppingCartQueue"] ?? throw new InvalidOperationException();
-StaticData.AzureRegisterQueueName = builder.Configuration["TopicAndQueueName:UserRegisteredQueue"] ?? throw new InvalidOperationException();
+StaticData.AzureOrderCreatedTopicName = builder.Configuration["TopicAndQueueName:OrderCreatedTopicName"] ?? throw new InvalidOperationException();
+StaticData.AzureOrderCreatedRewardsUpdateSubscription = builder.Configuration["TopicAndQueueName:OrderCreatedRewardsUpdateSubscription"] ?? throw new InvalidOperationException();
 
 // add automapper
 builder.Services.AddSingleton(MappingConfig.RegisterMappings().CreateMapper());
@@ -42,6 +43,9 @@ var optionBuilder = new DbContextOptionsBuilder<AppDbContext>();
 optionBuilder.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionDb"));
 
 builder.Services.AddSingleton<RewardService>(provider => new RewardService(optionBuilder.Options));
+
+builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
+
 
 
 // Authentication and Authorization
@@ -64,6 +68,7 @@ if (app.Environment.IsDevelopment())
 }
 
 
+app.UseAzureServiceBusConsumer();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
