@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -42,6 +43,59 @@ public class OrderApiController : ControllerBase
         _messageBus = messageBus;
     }
 
+
+    [HttpGet("GetUserOrders")]
+    [Authorize]
+    public IActionResult GetUserOrders(string? userId)
+    {
+        try
+        {
+            // 1. check user role todo
+            // 2. if user role is admin then provide move to step 5 todo
+            // 3. if user role is not admin then check user id todo
+            // 4. if user id null then ask for the user id todo
+            // 5. if user id available give orders for user id todo
+            // 6. if user id is not available give all orders to the admin todo 
+            
+            
+            // IEnumerable<OrderHeader> orders;
+            // orders = _dbContext.OrderHeaders
+            //     .Include(oh => oh.OrderDetails)
+            //     
+            // if (userId != null)
+            // {
+            //     orders = orders.Where(oh => oh.UserId == userId);
+            // }
+            //
+            return Ok(_response);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return Ok(ResponseHelper.GenerateErrorResponse(e.Message));
+        }
+    }
+    
+    [HttpGet("/{orderId:guid}")]
+    [Authorize]
+    public IActionResult Get(Guid orderId)
+    {
+        try
+        {
+            var orderHeader = _dbContext.OrderHeaders.Include(oh => oh.OrderDetails).FirstOrDefault(order => order.OrderHeaderId == orderId);
+            if (orderHeader == null) return Ok(ResponseHelper.NotFoundResponseDto("Order not found"));
+            _response.Data = _mapper.Map<OrderHeaderDto>(orderHeader);
+            return Ok(_response);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return Ok(ResponseHelper.GenerateErrorResponse(e.Message));
+        }
+    }
+    
+    
+    //Creation and Payment Section for the order
     
     [Authorize]
     [HttpPost("create")]
