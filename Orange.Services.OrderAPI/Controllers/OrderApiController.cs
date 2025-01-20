@@ -1,9 +1,12 @@
 using System.Diagnostics;
 using System.Net;
+using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Orange.MessageBus;
 using Orange.Services.OrderAPI.Data;
 using Orange.Services.OrderAPI.Models;
@@ -46,27 +49,49 @@ public class OrderApiController : ControllerBase
 
     [HttpGet("GetUserOrders")]
     [Authorize]
-    public IActionResult GetUserOrders(string? userId)
+    public IActionResult GetUserOrders(string? userId, int limit = 10, int page = 1)
     {
+        Console.WriteLine("working");
         try
         {
-            // 1. check user role todo
-            // 2. if user role is admin then provide move to step 5 todo
-            // 3. if user role is not admin then check user id todo
-            // 4. if user id null then ask for the user id todo
-            // 5. if user id available give orders for user id todo
-            // 6. if user id is not available give all orders to the admin todo 
+            // var authorizeUserId = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+            // Console.WriteLine($"authorizeUserId: {authorizeUserId}");
+            // Console.WriteLine($"authorizeUserId: {authorizeUserId}");
             
+            // Redirect user when user role is not admin
+            if (!User.IsInRole(StaticData.RoleAdmin))
+            {
+                if (
+                    string.IsNullOrEmpty(userId) 
+                    //  authorizeUserId == null ||
+                    // authorizeUserId != userId
+                    )
+                {
+                    return Unauthorized();    
+                }
+                
+            }
             
-            // IEnumerable<OrderHeader> orders;
-            // orders = _dbContext.OrderHeaders
-            //     .Include(oh => oh.OrderDetails)
-            //     
-            // if (userId != null)
-            // {
-            //     orders = orders.Where(oh => oh.UserId == userId);
-            // }
-            //
+            var query = _dbContext.OrderHeaders
+                .Include(oh => oh.OrderDetails)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                query = query.Where(u => u.UserId == userId);
+            }
+
+
+            _response.Data = new PaginateDto()
+            {
+                CurrentPage = page,
+                Limit = limit,
+                Main = _mapper.Map<List<OrderHeaderDto>>(query.Skip(limit * (page - 1))
+                    .Take(limit)
+                    .ToList())
+            };
+            _response.Message = "Orders Retrieved Successfully.";
+            
             return Ok(_response);
         }
         catch (Exception e)
@@ -75,6 +100,8 @@ public class OrderApiController : ControllerBase
             return Ok(ResponseHelper.GenerateErrorResponse(e.Message));
         }
     }
+
+    
     
     [HttpGet("/{orderId:guid}")]
     [Authorize]
