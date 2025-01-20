@@ -1,12 +1,7 @@
-using System.Diagnostics;
-using System.Net;
-using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Orange.MessageBus;
 using Orange.Services.OrderAPI.Data;
 using Orange.Services.OrderAPI.Models;
@@ -278,6 +273,51 @@ public class OrderApiController : ControllerBase
             }
             
             return Ok(_response);
+        }
+        catch (Exception e)
+        {
+            return Ok(ResponseHelper.GenerateErrorResponse(e.Message));
+        }
+    }
+
+
+    [HttpPut("/{orderId:guid}/UpdateOrderStatus")]
+    [Authorize(Roles = UserRoles.Admin)]
+    public IActionResult UpdateOrderStatus(Guid orderId, [FromBody] string status)
+    {
+        
+        try
+        {
+            var orderHeader = _dbContext.OrderHeaders.FirstOrDefault(oh => oh.OrderHeaderId == orderId);
+            if (orderHeader == null)
+            {
+                return Ok(ResponseHelper.GenerateErrorResponse("Invalid order, please try again!"));
+            }
+
+            switch (status)
+            {
+                case OrderStatus.Approved:
+                    orderHeader.Status = OrderStatus.Approved;
+                    break;
+                case OrderStatus.Cancelled:
+                    var options = new RefundCreateOptions
+                    {
+                        Reason = RefundReasons.RequestedByCustomer,
+                        PaymentIntent = orderHeader.PaymentIntentId,
+                    };
+                    var stripeService = new RefundService();
+                    var _ = stripeService.Create(options);
+                    orderHeader.Status = OrderStatus.Refunded;
+                    break;
+                default:
+                    orderHeader.Status = status;
+                    break; 
+            }
+            
+            _dbContext.SaveChanges();
+            
+            return Ok(_response);
+
         }
         catch (Exception e)
         {

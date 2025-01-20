@@ -10,6 +10,9 @@ public interface IOrderService
     Task<ResponseDto> CreatePaymentSessionAsync(StripeRequestDto stripeRequestDto);
     
     Task<ResponseDto> ValidateStripeSessionAsync(string orderHeaderId);
+    Task<ResponseDto> GetUserOrdersAsync(string? userId);
+    Task<ResponseDto> GetOrderAsync(string orderHeaderId);
+    Task<ResponseDto> UpdateOrderStatusAsync(Guid orderId, string status);
     
     
 }

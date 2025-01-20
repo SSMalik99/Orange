@@ -41,4 +41,32 @@ public class OrderService(IBaseService baseService) : IOrderService
             Body = orderHeaderId,
         });
     }
+
+    public async Task<ResponseDto> GetUserOrdersAsync(string? userId)
+    {
+        return await baseService.SendAsync(new RequestDto()
+        {
+            ApiType = SharedDetail.ApiType.Get,
+            Url = SharedDetail.OrderApiBase+"/api/order/GetUserOrder"+userId
+        });
+    }
+
+    public async Task<ResponseDto> GetOrderAsync(string orderHeaderId)
+    {
+        return await baseService.SendAsync(new RequestDto()
+        {
+            ApiType = SharedDetail.ApiType.Get,
+            Url = SharedDetail.OrderApiBase+"/api/order/"+orderHeaderId
+        });
+    }
+
+    public async Task<ResponseDto> UpdateOrderStatusAsync(Guid orderId, string status)
+    {
+        return await baseService.SendAsync(new RequestDto()
+        {
+            ApiType = SharedDetail.ApiType.Post,
+            Url = SharedDetail.OrderApiBase+"/api/order/"+orderId+"/UpdateOrderStatus/",
+            Body = status,
+        });
+    }
 }
