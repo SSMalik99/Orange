@@ -42,12 +42,12 @@ public class OrderService(IBaseService baseService) : IOrderService
         });
     }
 
-    public async Task<ResponseDto> GetUserOrdersAsync(string? userId)
+    public async Task<ResponseDto> GetUserOrdersAsync(string? userId, int? limit = 10, int? page = 1)
     {
         return await baseService.SendAsync(new RequestDto()
         {
             ApiType = SharedDetail.ApiType.Get,
-            Url = SharedDetail.OrderApiBase+"/api/order/GetUserOrder"+userId
+            Url = SharedDetail.OrderApiBase+"/api/order/GetUserOrder"+userId+"/?limit="+limit+"&page="+page,
         });
     }
 
