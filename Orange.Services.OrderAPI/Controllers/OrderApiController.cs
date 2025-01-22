@@ -65,6 +65,8 @@ public class OrderApiController : ControllerBase
                     return Unauthorized();    
                 }
                 
+                
+                
             }
             
             var query = _dbContext.OrderHeaders
@@ -77,14 +79,16 @@ public class OrderApiController : ControllerBase
             }
 
 
-            _response.Data = new PaginateDto()
-            {
-                CurrentPage = page,
-                Limit = limit,
-                Main = _mapper.Map<List<OrderHeaderDto>>(query.Skip(limit * (page - 1))
-                    .Take(limit)
-                    .ToList())
-            };
+            _response.Data = _mapper.Map<List<OrderHeaderDto>>(query.ToList());
+            //     new PaginateDto()
+            // {
+            //     CurrentPage = page,
+            //     Limit = limit,
+            //     Main = _mapper.Map<List<OrderHeaderDto>>(query
+            //         .Skip(limit * (page - 1))
+            //         .Take(limit)
+            //         .ToList())
+            // };
             _response.Message = "Orders Retrieved Successfully.";
             
             return Ok(_response);

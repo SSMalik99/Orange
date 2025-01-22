@@ -44,10 +44,18 @@ public class OrderService(IBaseService baseService) : IOrderService
 
     public async Task<ResponseDto> GetUserOrdersAsync(string? userId, int? limit = 10, int? page = 1)
     {
+        var url = SharedDetail.OrderApiBase+"/api/order/GetUserOrders?";
+        
+        if (userId is not null)
+        {
+            url += $"userId={userId}&";
+            
+        }
+        
         return await baseService.SendAsync(new RequestDto()
         {
             ApiType = SharedDetail.ApiType.Get,
-            Url = SharedDetail.OrderApiBase+"/api/order/GetUserOrder"+userId+"/?limit="+limit+"&page="+page,
+            Url = url+"limit="+limit+"&page="+page,
         });
     }
 

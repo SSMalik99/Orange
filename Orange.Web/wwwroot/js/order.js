@@ -21,26 +21,41 @@ $(document).ready(function () {
 });
 
 function loadDataTable(status) {
+
+    $.get("/order/getAllOrders?status=Pending", function(response) {
+        console.log(response);
+    });
+    
     dataTable = $('#tblData').DataTable({
-        order: [[0, 'desc']],
-        "ajax": { url: "/order/detall?status=" + status },
+        //order: [[0, 'desc']],
+        columnDefs: [
+            {
+                searchable: false,
+                orderable: false,
+                targets: 0
+            }
+        ],
+        
+        "ajax": { url: "/order/getAllOrders?status=" + status },
         "columns": [
-            { data: 'orderHeaderId', "width": "5%"},
+            //{ "data": , width: "20%" },
             { data: 'email', "width": "25%" },
-            { data: 'firstName', "width": "10%" },
-            { data: 'lastName', "width": "10%" },
-            { data: 'phone', "width": "10%" },
+            { data: 'firstName', "width": "20%" },
+            //{ data: 'lastName', "width": "10%" },
+            { data: 'phoneNumber', "width": "10%" },
             { data: 'status', "width": "10%" },
             { data: 'orderTotal', "width": "10%" },
             {
                 data: 'orderHeaderId',
                 "render": function (data) {
                     return `<div class="w-75 btn-group" role="group">
-                    <a href="/order/orderDetail?orderId=${data}" class="btn btn-primary mx-2"><i class="bi bi-pencil-square"></i></a>
+                    <a href="/order/detail?orderId=${data}" class="btn btn-primary mx-2"><i class="bi bi-pencil-square"></i></a>
                     </div>`
                 },
                 "width": "10%"
             }
         ],
     })
+
+    
 }
