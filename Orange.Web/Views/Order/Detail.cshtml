@@ -23,28 +23,28 @@
                             <div class="row my-1">
                                 <div class="col-3">First Name</div>
                                 <div class="col-9">
-                                    <input asp-for="FirstName" readonly class="form-control" />
+                                    <input asp-for="@Model.FirstName" readonly class="form-control" />
                                 </div>
                             </div>
                             <div class="row my-1">
                                 <div class="col-3">Last Name</div>
                                 <div class="col-9">
                                     
-                                    <input asp-for="LastName" readonly class="form-control" />
+                                    <input asp-for="@Model.LastName" readonly class="form-control" />
                                 </div>
                             </div>
                            
                             <div class="row my-1">
                                 <div class="col-3">Phone</div>
                                 <div class="col-9">
-                                    <input asp-for="PhoneNumber" readonly class="form-control" />
+                                    <input asp-for="@Model.PhoneNumber" readonly class="form-control" />
                                 </div>
                             </div>
 
                             <div class="row my-1">
                                 <div class="col-3">Email</div>
                                 <div class="col-9">
-                                    <input asp-for="Email" readonly class="form-control" />
+                                    <input asp-for="@Model.Email" readonly class="form-control" />
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -84,20 +84,24 @@
                             <label class="bg-info text-dark text-center form-control my-2">Order Status - @Model.Status</label>
 
                             <ul class="list-group mb-3">
-                                @foreach(var detail in Model.OrderDetails){
-                                <li class="list-group-item d-flex justify-content-between p-2">
-                                    <div class="row container">
-                                        <div class="col-8">
+                                @if (Model.OrderDetails != null)
+                                {
+                                    foreach (var detail in Model.OrderDetails)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between p-2">
+                                            <div class="row container">
+                                                <div class="col-8">
 
-                                            <h6 class="my-0 text-white-50">@detail.ProductName</h6>
-                                                <small class="text-muted">Price : @detail.Price.ToString("c")</small><br />
-                                                <small class="text-muted">Quantity : @detail.Quantity</small>
-                                        </div>
-                                        <div class="col-4 text-end">
-                                            <p class="text-success">@((detail.Quantity * detail.Price).ToString("c"))</p>
-                                        </div>
-                                    </div>
-                                </li>
+                                                    <h6 class="my-0 text-white-50">@detail.ProductName</h6>
+                                                    <small class="text-muted">Price : @detail.Price.ToString("c")</small><br/>
+                                                    <small class="text-muted">Quantity : @detail.Quantity</small>
+                                                </div>
+                                                <div class="col-4 text-end">
+                                                    <p class="text-success">@((detail.Quantity * detail.Price).ToString("c"))</p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
                                 }
                                 <li class="list-group-item bg-primary">
                                     <div class="row container">

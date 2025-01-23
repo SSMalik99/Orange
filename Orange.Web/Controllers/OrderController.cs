@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.JavaScript;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -29,10 +30,12 @@ public class OrderController : Controller
         var userId = User.Claims.Where(c => c.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
         
         var response = await _orderService.GetOrderAsync(orderId);
+        Console.WriteLine(JsonConvert.SerializeObject(response));
         if (response.IsSuccess)
         {
             orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.Data));
         }
+        
 
         if (!User.IsInRole(SharedDetail.RoleAdmin) && userId != null && orderHeaderDto?.UserId != userId)
         {
@@ -74,5 +77,30 @@ public class OrderController : Controller
         return Json(new { data = orders }); 
 
     }
+    
+    [HttpPost]
+    public async Task<IActionResult> CompleteOrder(string orderHeaderId)
+    {
+        
+        throw new NotImplementedException();
+    }
+    
+    
+    [HttpPost]
+    public async Task<IActionResult> OrderReadyForPickup(string orderHeaderId)
+    {
+        
+        throw new NotImplementedException();
+    }
+
+    
+    [HttpPost]
+    public async Task<IActionResult> CancelOrder(string orderHeaderId)
+    {
+        
+        throw new NotImplementedException();
+    }
+
+    
     
 }

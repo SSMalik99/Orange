@@ -102,7 +102,7 @@ public class OrderApiController : ControllerBase
 
     
     
-    [HttpGet("/{orderId:guid}")]
+    [HttpGet("{orderId:guid}")]
     [Authorize]
     public IActionResult Get(Guid orderId)
     {
