@@ -12,7 +12,7 @@ public interface IOrderService
     Task<ResponseDto> ValidateStripeSessionAsync(string orderHeaderId);
     Task<ResponseDto> GetUserOrdersAsync(string? userId, int? limit = 10, int? page = 1);
     Task<ResponseDto> GetOrderAsync(string orderHeaderId);
-    Task<ResponseDto> UpdateOrderStatusAsync(Guid orderId, string status);
+    Task<ResponseDto> UpdateOrderStatusAsync(string orderId, string status);
     
     
 }

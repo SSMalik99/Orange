@@ -109,6 +109,7 @@ public class OrderApiController : ControllerBase
         try
         {
             var orderHeader = _dbContext.OrderHeaders.Include(oh => oh.OrderDetails).FirstOrDefault(order => order.OrderHeaderId == orderId);
+            
             if (orderHeader == null) return Ok(ResponseHelper.NotFoundResponseDto("Order not found"));
             _response.Data = _mapper.Map<OrderHeaderDto>(orderHeader);
             return Ok(_response);
@@ -285,14 +286,15 @@ public class OrderApiController : ControllerBase
     }
 
 
-    [HttpPut("/{orderId:guid}/UpdateOrderStatus")]
+    [HttpPut("{orderId:guid}/UpdateOrderStatus")]
     [Authorize(Roles = UserRoles.Admin)]
     public IActionResult UpdateOrderStatus(Guid orderId, [FromBody] string status)
     {
-        
+        Console.WriteLine("working", orderId);
         try
         {
             var orderHeader = _dbContext.OrderHeaders.FirstOrDefault(oh => oh.OrderHeaderId == orderId);
+            
             if (orderHeader == null)
             {
                 return Ok(ResponseHelper.GenerateErrorResponse("Invalid order, please try again!"));

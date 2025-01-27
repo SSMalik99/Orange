@@ -68,11 +68,12 @@ public class OrderService(IBaseService baseService) : IOrderService
         });
     }
 
-    public async Task<ResponseDto> UpdateOrderStatusAsync(Guid orderId, string status)
+    public async Task<ResponseDto> UpdateOrderStatusAsync(string orderId, string status)
     {
+        
         return await baseService.SendAsync(new RequestDto()
         {
-            ApiType = SharedDetail.ApiType.Post,
+            ApiType = SharedDetail.ApiType.Put,
             Url = SharedDetail.OrderApiBase+"/api/order/"+orderId+"/UpdateOrderStatus/",
             Body = status,
         });

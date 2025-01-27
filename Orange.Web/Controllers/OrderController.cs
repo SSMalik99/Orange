@@ -46,7 +46,7 @@ public class OrderController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllOrders(int? limit = 10, int? page = 1)
+    public async Task<IActionResult> GetAllOrders(int? limit = 10, int? page = 1, string status = "All")
     {
         IEnumerable<OrderHeaderDto> orders = [];
         // PaginateDto ordersPaginateDto = new PaginateDto()
@@ -72,6 +72,20 @@ public class OrderController : Controller
         {
             //ordersPaginateDto = JsonConvert.DeserializeObject<PaginateDto>(Convert.ToString(responseDto.Data));
             orders = JsonConvert.DeserializeObject<List<OrderHeaderDto>>(Convert.ToString(responseDto.Data));
+            switch (status)
+            {
+                case "approved":
+                    orders = orders?.Where(u => u.Status == OrderStatus.Approved);
+                    break;
+                case "readyforpickup":
+                    orders = orders?.Where(u => u.Status == OrderStatus.ReadyForPickup);
+                    break;
+                case "cancelled":
+                    orders = orders?.Where(u => u.Status == OrderStatus.Cancelled || u.Status ==OrderStatus.Refunded);
+                    break;
+                default:
+                    break;
+            }
         }
         
         return Json(new { data = orders }); 
@@ -82,7 +96,17 @@ public class OrderController : Controller
     public async Task<IActionResult> CompleteOrder(string orderHeaderId)
     {
         
-        throw new NotImplementedException();
+        var response = await _orderService.UpdateOrderStatusAsync(orderHeaderId, OrderStatus.Completed);
+        if (response.IsSuccess)
+        {
+            TempData[NotificationType.Success] = "Order is marked completed now.";
+        }
+        else
+        {
+            TempData[NotificationType.Error] = response.Message;
+        }
+        
+        return RedirectToAction(nameof(Detail), new { orderId = orderHeaderId });
     }
     
     
@@ -90,15 +114,35 @@ public class OrderController : Controller
     public async Task<IActionResult> OrderReadyForPickup(string orderHeaderId)
     {
         
-        throw new NotImplementedException();
+        var response = await _orderService.UpdateOrderStatusAsync(orderHeaderId, OrderStatus.ReadyForPickup);
+        if (response.IsSuccess)
+        {
+            TempData[NotificationType.Success] = "Order is now ready to pickup";
+        }
+        else
+        {
+            TempData[NotificationType.Error] = response.Message;
+        }
+        
+        return RedirectToAction(nameof(Detail), new { orderId = orderHeaderId });
     }
-
+    
     
     [HttpPost]
     public async Task<IActionResult> CancelOrder(string orderHeaderId)
     {
         
-        throw new NotImplementedException();
+        var response = await _orderService.UpdateOrderStatusAsync(orderHeaderId, OrderStatus.Cancelled);
+        if (response.IsSuccess)
+        {
+            TempData[NotificationType.Success] ="Order is marked as cancelled";
+        }
+        else
+        {
+            TempData[NotificationType.Error] = response.Message;
+        }
+        
+        return RedirectToAction(nameof(Detail), new { orderId = orderHeaderId });
     }
 
     
