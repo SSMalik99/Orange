@@ -8,3 +8,4 @@ riderModule.iml
 *.secret.json
 *.db-shm
 *.db-wal
+ProductImages/

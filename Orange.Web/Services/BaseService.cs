@@ -5,6 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Orange.Web.Models;
 using Orange.Web.Services.IService;
+
 using static Orange.Web.Utility.SharedDetail;
 
 namespace Orange.Web.Services;
@@ -16,15 +17,44 @@ public class BaseService(IHttpClientFactory httpClientFactory, ITokenProvider to
         
         HttpClient httpClient = httpClientFactory.CreateClient("OrangeAPI");
         HttpRequestMessage request = new();
-        request.Headers.Add("Accept","application/json");
+
+
+        request.Headers.Add("Accept",
+            requestDto.ContentType == ContactType.MultipartFormData ? "*/*" : "application/json");
+
+        
+        
         if (withAuth)
         {
             request.Headers.Add("Authorization", $"Bearer {tokenProvider.GetToken()}");
         }
         
         request.RequestUri = new Uri(requestDto.Url);
-
-        if (requestDto.Body is not null)
+        
+        if (requestDto.ContentType == ContactType.MultipartFormData)
+        {
+            var content = new MultipartFormDataContent();
+           
+            foreach (var prop in requestDto.Body.GetType().GetProperties())
+            {
+                var value = prop.GetValue(requestDto.Body);
+                
+                if (value is FormFile file)
+                {
+                    content.Add(new StreamContent(file.OpenReadStream()), prop.Name,file.FileName);
+                    
+                }
+                else
+                {
+                    content.Add(new StringContent((value==null ? "" : value.ToString()) ?? string.Empty), prop.Name);
+                }
+                
+                
+            }
+            
+            request.Content = content;
+            
+        }else if (requestDto.Body is not null)
         {
             request.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Body), Encoding.UTF8, "application/json");
         }

@@ -22,4 +22,12 @@ public static class SharedDetail
     }
     
     
+    public enum ContactType
+    {
+        Json,
+        MultipartFormData,
+    }
+    
+    
+    
 }

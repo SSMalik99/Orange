@@ -1,6 +1,6 @@
+using System.Net.Mime;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Orange.Services.ProductAPI.Data;
@@ -133,13 +133,41 @@ public class ProductApiController:ControllerBase
 
     [HttpPost]
     [Authorize(Roles = UserRoles.Admin)]
-    public IActionResult Post([FromBody] ProductDto productDto)
+    [Consumes(MediaTypeNames.Multipart.FormData)]
+    public IActionResult Post([FromForm] ProductDto productDto)
     {
         try
         {
             
             var obj = _mapper.Map<Product>(productDto);
             _dbContext.Products.Add(obj);
+            _dbContext.SaveChanges();
+
+            if (productDto.Image != null)
+            {
+                
+                var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ProductImages");
+                if (!Directory.Exists(uploadDir))
+                {
+                    Directory.CreateDirectory(uploadDir);
+                }
+                var fileName = Guid.NewGuid() + Path.GetExtension(productDto.Image.FileName);
+                var fullPath = Path.Combine(uploadDir, fileName);
+
+                using (var fileStream = new FileStream(fullPath, FileMode.Create))
+                {
+                    productDto.Image.CopyTo(fileStream);
+                }
+
+                var baseUrl = $"{Request.Scheme}://{Request.Host.Value}{Request.PathBase.Value}";
+                obj.ImageLocalPath = $"wwwroot/ProductImages/{fileName}";
+                obj.ImageUrl = $"{baseUrl}/ProductImages/{fileName}";
+            }
+            else
+            {
+                obj.ImageUrl = "https://placehold.co/600x400";
+            }
+            _dbContext.Products.Update(obj);
             _dbContext.SaveChanges();
             _responseDto.Data = _mapper.Map<ProductDto>(obj);
             _responseDto.Message = "Product successfully added.";
@@ -156,17 +184,70 @@ public class ProductApiController:ControllerBase
 
     [HttpPut]
     [Authorize(Roles = UserRoles.Admin)]
-    public IActionResult Put([FromBody] ProductDto productDto)
+    
+    [Consumes(MediaTypeNames.Multipart.FormData)]
+    public IActionResult Put([FromForm] ProductDto productDto)
     {
         try
         {
+            var product = _mapper.Map<Product>(productDto);
+
+            if (productDto.Image != null)
+            {
+                if (!string.IsNullOrEmpty(product.ImageLocalPath))
+                {
+                    var oldFilePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), product.ImageLocalPath);
+                    var file = new FileInfo(oldFilePathDirectory);
+                    if (file.Exists)
+                    {
+                        file.Delete();
+                    }
+                }
+
+                var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ProductImages");
+                if (!Directory.Exists(uploadDir))
+                {
+                    Directory.CreateDirectory(uploadDir);
+                }
+                var fileName = Guid.NewGuid() + Path.GetExtension(productDto.Image.FileName);
+                var fullPath = Path.Combine(uploadDir, fileName);
+
+                using (var fileStream = new FileStream(fullPath, FileMode.Create))
+                {
+                    productDto.Image.CopyTo(fileStream);
+                }
+
+                var baseUrl = $"{Request.Scheme}://{Request.Host.Value}{Request.PathBase.Value}";
+                product.ImageLocalPath = $"wwwroot/ProductImages/{fileName}";
+                product.ImageUrl = $"{baseUrl}/ProductImages/{fileName}";
+            }
+
+
+            _dbContext.Products.Update(product);
+            _dbContext.SaveChanges();
+
+            _responseDto.Data = _mapper.Map<ProductDto>(product);
+            /*
             var product = _dbContext.Products.FirstOrDefault(p => p.Id == productDto.Id);
             if (product == null) return NotFound(ResponseHelper.NotFoundResponseDto("Product not found."));
+            
+            if (!string.IsNullOrEmpty(product.ImageLocalPath))
+            {
+                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(),product.ImageLocalPath);
+                var fileInfo = new FileInfo(oldFilePath);
+                if (fileInfo.Exists)
+                {
+                    fileInfo.Delete();
+                }
+                
+            }
+            
             var obj = _mapper.Map(productDto, product);
             
             //_dbContext.Products.Update(obj);
             
             _dbContext.SaveChanges();
+            */
             
             //_responseDto.Data = _mapper.Map<ProductDto>(obj);
             _responseDto.Message = "Product updated successfully.";
@@ -189,6 +270,16 @@ public class ProductApiController:ControllerBase
         {
             var product = _dbContext.Products.FirstOrDefault(p => p.Id == id);
             if (product == null) return NotFound(ResponseHelper.NotFoundResponseDto("Product not found."));
+            if (!string.IsNullOrEmpty(product.ImageLocalPath))
+            {
+                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(),product.ImageLocalPath);
+                var fileInfo = new FileInfo(oldFilePath);
+                if (fileInfo.Exists)
+                {
+                    fileInfo.Delete();
+                }
+                
+            }
             _dbContext.Products.Remove(product);
             _dbContext.SaveChanges();
             _responseDto.Message = "Product deleted successfully.";

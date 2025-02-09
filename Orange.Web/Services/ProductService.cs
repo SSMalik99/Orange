@@ -39,10 +39,12 @@ public class ProductService(IBaseService baseService) : IProductService
 
     public async Task<ResponseDto> CreateProductAsync(ProductDto productDto)
     {
+        Console.WriteLine(productDto.Image);
         return await baseService.SendAsync(new RequestDto()
         {
             ApiType = SharedDetail.ApiType.Post,
             Url = SharedDetail.ProductApiBase+"/api/products",
+            ContentType = SharedDetail.ContactType.MultipartFormData,
             Body = productDto,
         });
     }
@@ -53,6 +55,7 @@ public class ProductService(IBaseService baseService) : IProductService
         {
             ApiType = SharedDetail.ApiType.Put,
             Url = SharedDetail.ProductApiBase+"/api/products",
+            ContentType = SharedDetail.ContactType.MultipartFormData,
             Body = productDto,
         });
     }

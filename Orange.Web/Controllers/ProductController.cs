@@ -56,6 +56,7 @@ public class ProductController : Controller
         }
 
         TempData[NotificationType.Error] = response.Message;
+        ViewBag.Categories = await GetCategories();
         return View(productDto);
 
 

@@ -9,4 +9,6 @@ public class RequestDto
     public object? Body { get; set; } = "";
     public string? AccessToken { get; set; }
     
+    public SharedDetail.ContactType ContentType { get; set; } = SharedDetail.ContactType.Json;
+    
 }
