@@ -30,8 +30,17 @@ public class ProductController : Controller
     public async Task<IActionResult> Index()
     {
         var responseDto = await _productService.GetPaginatedProductAsync();
+        List<ProductDto> products = [];
+
+        if (!responseDto.IsSuccess)
+        {
+            TempData[NotificationType.Error] = responseDto.Message;
+            return View(products);
+        };
+        
         var paginateData = JsonConvert.DeserializeObject<PaginateDto>(Convert.ToString(responseDto.Data));
-        var products = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(paginateData.Main));
+        products = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(paginateData.Main));
+
         return View(products);
     }
 

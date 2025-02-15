@@ -42,9 +42,18 @@ public class HomeController : Controller
     public async Task<IActionResult> ProductDetail(int productId)
     {
         var responseDto = await _productService.GetProductByIdAsync(productId);
-        var product = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(responseDto.Data));
         
-        return View(product);
+        if (responseDto.IsSuccess)
+        {
+            var product = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(responseDto.Data));
+            
+            return View(product);
+        }
+        TempData[NotificationType.Error] = responseDto.Message;
+        return RedirectToAction("Index", "Home");
+        
+        
+        
     }
 
     [Authorize]
